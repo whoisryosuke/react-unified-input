@@ -1,6 +1,6 @@
 {
-  "name": "react-geometry-node-graph",
-  "version": "0.0.6",
+  "name": "unified-input",
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -37,14 +37,14 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/react-geometry-node-graph.umd.js",
-  "module": "./dist/react-geometry-node-graph.es.js",
+  "main": "./dist/unified-input.umd.js",
+  "module": "./dist/unified-input.es.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/react-geometry-node-graph.es.js",
-      "require": "./dist/react-geometry-node-graph.umd.js"
+      "import": "./dist/unified-input.es.js",
+      "require": "./dist/unified-input.umd.js"
     }
   }
 }

@@ -1,5 +1,3 @@
-import NodeGraph from "./components/NodeGraph"
+import App from "./App";
 
-export {
-    NodeGraph
-}
+export { App };
