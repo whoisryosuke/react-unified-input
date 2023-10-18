@@ -6,6 +6,7 @@ import {
   UserInputKeys,
   DEFAULT_USER_INPUT,
   DEFAULT_KEYBOARD_MAP,
+  UserInputDeviceKeys,
 } from "../constants/input";
 // import type {} from "@redux-devtools/extension"; // required for devtools typing
 
@@ -14,6 +15,7 @@ interface LibraryState {
   focusItems: Record<FocusId, FocusItem>;
   addFocusItem: (focusId: FocusId, focusItem: FocusItem) => void;
   removeFocusItem: (focusId: FocusId) => void;
+  setFocusPosition: (focusId: FocusId, position: FocusItem["position"]) => void;
 
   // Input
   input: UserInputMap;
@@ -35,6 +37,16 @@ export const useLibraryStore = create<LibraryState>()(
           focusItems,
         };
       }),
+    setFocusPosition: (focusId, position) =>
+      set((state) => ({
+        focusItems: {
+          ...state.focusItems,
+          [focusId]: {
+            ...state.focusItems[focusId],
+            position,
+          },
+        },
+      })),
 
     input: DEFAULT_USER_INPUT,
     setInput: (key, input) =>
