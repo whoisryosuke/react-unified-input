@@ -40,7 +40,6 @@ const checkForCollisions = (
       switch (direction) {
         case "up": {
           if (foundItem && foundItem.position.y < focusItem.position.y) {
-            console.log("officially the closest item UP");
             foundKey = key;
             foundItem = focusItem;
           }
@@ -48,11 +47,20 @@ const checkForCollisions = (
         }
         case "down": {
           if (foundItem && foundItem.position.y > focusItem.position.y) {
-            console.log(
-              "officially the closest item DOWN",
-              key,
-              focusItem.position.y
-            );
+            foundKey = key;
+            foundItem = focusItem;
+          }
+          break;
+        }
+        case "left": {
+          if (foundItem && foundItem.position.x < focusItem.position.x) {
+            foundKey = key;
+            foundItem = focusItem;
+          }
+          break;
+        }
+        case "right": {
+          if (foundItem && foundItem.position.x > focusItem.position.x) {
             foundKey = key;
             foundItem = focusItem;
           }
@@ -134,12 +142,26 @@ const Navigator = (props: Props) => {
   const navigateDown = () => {
     navigate("down");
   };
+  const navigateLeft = () => {
+    navigate("left");
+  };
+  const navigateRight = () => {
+    navigate("right");
+  };
   const navigateUpThrottled = useCallback(
     () => throttle(navigateUp, 10000)(),
     []
   );
   const navigateDownThrottled = useCallback(
     () => throttle(navigateDown, 10000)(),
+    []
+  );
+  const navigateLeftThrottled = useCallback(
+    () => throttle(navigateLeft, 10000)(),
+    []
+  );
+  const navigateRightThrottled = useCallback(
+    () => throttle(navigateRight, 10000)(),
     []
   );
 
@@ -153,7 +175,21 @@ const Navigator = (props: Props) => {
       console.log("navigated down");
       navigateDownThrottled();
     }
-  }, [input, navigateUpThrottled, navigateDownThrottled]);
+    if (input.left) {
+      console.log("navigated left");
+      navigateLeftThrottled();
+    }
+    if (input.right) {
+      console.log("navigated right");
+      navigateRightThrottled();
+    }
+  }, [
+    input,
+    navigateUpThrottled,
+    navigateDownThrottled,
+    navigateLeftThrottled,
+    navigateRightThrottled,
+  ]);
 
   return <></>;
 };
