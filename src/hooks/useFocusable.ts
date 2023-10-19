@@ -3,6 +3,9 @@ import { useLibraryStore } from "../store/library";
 import { useFocusContext } from "../context/FocusContext";
 import { FocusId } from "../types";
 
+const generateId = () =>
+  `${Number(new Date()).toString()}-${Math.round(Math.random() * 100000)}`;
+
 type UseFocusableProps = {
   focusName: FocusId;
 };
@@ -16,8 +19,9 @@ const useFocusable = ({
 }: UseFocusableProps = DEFAULT_USE_FOCUSABLE_PROPS) => {
   const ref = useRef<HTMLElement>(null);
   const [focusId, setFocusId] = useState(
-    focusName !== "" ? focusName : Number(new Date()).toString()
+    focusName !== "" ? focusName : generateId()
   );
+  const focusAdded = useRef(false);
   const {
     focusItems,
     focusedItem,
@@ -38,26 +42,41 @@ const useFocusable = ({
 
   // Sync focus item with store
   useEffect(() => {
-    console.log("syncing focus position with store", focusId);
-    if (!(focusId in focusItems)) {
-      console.log("focus not found, syncing");
-      // Get position
-      const position = getPosition();
-      if (!position) {
-        // throw new Error(`Couldn't find element position for focus ${focusId}`);
-        return;
-      }
-      addFocusItem(focusId, { parent: parentKey, position });
+    console.log(
+      "syncing focus position with store",
+      focusId,
+      focusAdded.current
+    );
+
+    // If we already added it, don't add again
+    if (focusAdded.current) return;
+
+    // Check if focus name exists, if so, make a new one
+    // Ideally this will run again
+    if (focusId in focusItems) {
+      console.log("duplicate ID found, generating new one");
+      return setFocusId(generateId());
     }
+    console.log("focus not found, syncing");
+    // Get position
+    const position = getPosition();
+    if (!position) {
+      console.error("couldnt get position");
+      // throw new Error(`Couldn't find element position for focus ${focusId}`);
+      return;
+    }
+    console.log("adding to focus store", focusId);
+    addFocusItem(focusId, { parent: parentKey, position });
+    focusAdded.current = true;
   }, [focusId, addFocusItem, removeFocusItem, focusItems, parentKey]);
 
   // If we unmount, remove focus item from store
-  useEffect(() => {
-    return () => {
-      console.log("unmounting focus", focusId);
-      removeFocusItem(focusId);
-    };
-  }, [focusId, removeFocusItem]);
+  // useEffect(() => {
+  //   return () => {
+  //     console.log("unmounting focus", focusId);
+  //     removeFocusItem(focusId);
+  //   };
+  // }, [focusId]);
 
   // Sync position
   // useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { useLibraryStore } from "../../store/library";
 import { throttle } from "lodash";
 import { FocusId, FocusItem } from "../../types";
@@ -7,9 +7,11 @@ type NavigationDirections = "up" | "down" | "left" | "right";
 type Props = {};
 
 const Navigator = (props: Props) => {
-  const { focusItems, focusedItem, setFocusedItem, input } = useLibraryStore();
+  const { input } = useLibraryStore();
 
   const navigate = (direction: NavigationDirections) => {
+    const { focusItems, focusedItem, setFocusedItem } =
+      useLibraryStore.getState();
     console.log("navigating", direction);
     // Logic
     // Get current focus item
@@ -70,7 +72,11 @@ const Navigator = (props: Props) => {
           }
           case "down": {
             if (foundItem && foundItem.position.y > focusItem.position.y) {
-              console.log("officially the closest item DOWN");
+              console.log(
+                "officially the closest item DOWN",
+                key,
+                focusItem.position.y
+              );
               foundKey = key;
               foundItem = focusItem;
             }
@@ -80,7 +86,7 @@ const Navigator = (props: Props) => {
             break;
           }
         }
-
+        console.log("done checking");
         // No item to check against? This one wins then.
         if (!foundItem) {
           foundKey = key;
@@ -90,6 +96,7 @@ const Navigator = (props: Props) => {
 
     // Found something? Focus it!
     if (foundKey) {
+      console.log("navigating to", foundKey);
       setFocusedItem(foundKey);
     }
     // Nothing? Search through remaining focus items? (helps enforce container-first logic)
@@ -102,8 +109,14 @@ const Navigator = (props: Props) => {
   const navigateDown = () => {
     navigate("down");
   };
-  const navigateUpThrottled = throttle(navigateUp, 300);
-  const navigateDownThrottled = throttle(navigateDown, 300);
+  const navigateUpThrottled = useCallback(
+    () => throttle(navigateUp, 10000)(),
+    []
+  );
+  const navigateDownThrottled = useCallback(
+    () => throttle(navigateDown, 10000)(),
+    []
+  );
 
   // Check for input and navigate
   useEffect(() => {
