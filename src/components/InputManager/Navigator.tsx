@@ -34,15 +34,29 @@ const Navigator = (props: Props) => {
     // Look for something below
     let foundKey: FocusId | undefined;
     let foundItem: FocusItem | undefined;
-    focusChildren.forEach(([key, focusItem]) => {
-      if (focusItem.position.y > currentItem.position.y) {
+    // Filter items based on the direction we're searching
+    // Then loop over each one and check which is actually closest
+    focusChildren
+      .filter(([_, focusItem]) => {
+        switch (direction) {
+          case "up":
+            return focusItem.position.y < currentItem.position.y;
+          case "down":
+            return focusItem.position.y > currentItem.position.y;
+          case "left":
+            return focusItem.position.x < currentItem.position.x;
+          case "right":
+            return focusItem.position.x > currentItem.position.x;
+        }
+      })
+      .forEach(([key, focusItem]) => {
         console.log(
-          "found container child below focus item",
+          "found container child focus item",
+          direction,
           key,
           currentItem.position.y,
           focusItem.position.y
         );
-
         // Check if it's the closest item
         // Change logic depending on the direction
         switch (direction) {
@@ -72,8 +86,7 @@ const Navigator = (props: Props) => {
           foundKey = key;
           foundItem = focusItem;
         }
-      }
-    });
+      });
 
     // Found something? Focus it!
     if (foundKey) {
