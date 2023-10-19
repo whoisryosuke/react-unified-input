@@ -71,12 +71,13 @@ const useFocusable = ({
   }, [focusId, addFocusItem, removeFocusItem, focusItems, parentKey]);
 
   // If we unmount, remove focus item from store
-  // useEffect(() => {
-  //   return () => {
-  //     console.log("unmounting focus", focusId);
-  //     removeFocusItem(focusId);
-  //   };
-  // }, [focusId]);
+  useEffect(() => {
+    return () => {
+      console.log("unmounting focus", focusId);
+      removeFocusItem(focusId);
+      focusAdded.current = false;
+    };
+  }, [focusId]);
 
   // Sync position
   // useEffect(() => {
