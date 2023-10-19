@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useLibraryStore } from "../../store/library";
 import { throttle } from "lodash";
 
@@ -12,11 +12,19 @@ const Navigator = (props: Props) => {
   };
   const navigateUpThrottled = throttle(navigateUp, 300);
 
+  // Check for input and navigate
   useEffect(() => {
     if (input.up) {
       navigateUpThrottled();
     }
-  }, [input]);
+  }, [input, navigateUpThrottled]);
+
+  // Focus on initial render
+  useEffect(() => {
+    return () => {
+      second;
+    };
+  }, [third]);
 
   return <></>;
 };

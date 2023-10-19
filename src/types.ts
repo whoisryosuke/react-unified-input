@@ -3,7 +3,7 @@ export type Vector2D = {
   y: number;
 };
 
-export type FocusId = number;
+export type FocusId = string;
 export type FocusItem = {
   parent: FocusId;
   position: DOMRect;
