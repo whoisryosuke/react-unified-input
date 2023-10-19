@@ -4,6 +4,75 @@ import { throttle } from "lodash";
 import { FocusId, FocusItem } from "../../types";
 
 type NavigationDirections = "up" | "down" | "left" | "right";
+
+const checkForCollisions = (
+  focusChildren: [string, FocusItem][],
+  direction: NavigationDirections,
+  currentItem: FocusItem
+) => {
+  let foundKey: FocusId | undefined;
+  let foundItem: FocusItem | undefined;
+  // Filter items based on the direction we're searching
+  // Then loop over each one and check which is actually closest
+  focusChildren
+    .filter(([_, focusItem]) => {
+      switch (direction) {
+        case "up":
+          return focusItem.position.y < currentItem.position.y;
+        case "down":
+          return focusItem.position.y > currentItem.position.y;
+        case "left":
+          return focusItem.position.x < currentItem.position.x;
+        case "right":
+          return focusItem.position.x > currentItem.position.x;
+      }
+    })
+    .forEach(([key, focusItem]) => {
+      console.log(
+        "found container child focus item",
+        direction,
+        key,
+        currentItem.position.y,
+        focusItem.position.y
+      );
+      // Check if it's the closest item
+      // Change logic depending on the direction
+      switch (direction) {
+        case "up": {
+          if (foundItem && foundItem.position.y < focusItem.position.y) {
+            console.log("officially the closest item UP");
+            foundKey = key;
+            foundItem = focusItem;
+          }
+          break;
+        }
+        case "down": {
+          if (foundItem && foundItem.position.y > focusItem.position.y) {
+            console.log(
+              "officially the closest item DOWN",
+              key,
+              focusItem.position.y
+            );
+            foundKey = key;
+            foundItem = focusItem;
+          }
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      console.log("done checking");
+      // No item to check against? This one wins then.
+      if (!foundItem) {
+        foundKey = key;
+        foundItem = focusItem;
+      }
+    });
+
+  return foundKey;
+};
+
 type Props = {};
 
 const Navigator = (props: Props) => {
@@ -28,78 +97,34 @@ const Navigator = (props: Props) => {
       }
     }
     // Filter the focus items by children of the parent
-    const focusChildren = Object.entries(focusItems).filter(
-      ([_, focusItem]) => {
-        return focusItem.parent === currentItem.parent;
-      }
-    );
+    const focusMap = Object.entries(focusItems);
+    const focusChildren = focusMap.filter(([_, focusItem]) => {
+      return focusItem.parent === currentItem.parent;
+    });
     // Look for something below
-    let foundKey: FocusId | undefined;
-    let foundItem: FocusItem | undefined;
-    // Filter items based on the direction we're searching
-    // Then loop over each one and check which is actually closest
-    focusChildren
-      .filter(([_, focusItem]) => {
-        switch (direction) {
-          case "up":
-            return focusItem.position.y < currentItem.position.y;
-          case "down":
-            return focusItem.position.y > currentItem.position.y;
-          case "left":
-            return focusItem.position.x < currentItem.position.x;
-          case "right":
-            return focusItem.position.x > currentItem.position.x;
-        }
-      })
-      .forEach(([key, focusItem]) => {
-        console.log(
-          "found container child focus item",
-          direction,
-          key,
-          currentItem.position.y,
-          focusItem.position.y
-        );
-        // Check if it's the closest item
-        // Change logic depending on the direction
-        switch (direction) {
-          case "up": {
-            if (foundItem && foundItem.position.y < focusItem.position.y) {
-              console.log("officially the closest item UP");
-              foundKey = key;
-              foundItem = focusItem;
-            }
-            break;
-          }
-          case "down": {
-            if (foundItem && foundItem.position.y > focusItem.position.y) {
-              console.log(
-                "officially the closest item DOWN",
-                key,
-                focusItem.position.y
-              );
-              foundKey = key;
-              foundItem = focusItem;
-            }
-            break;
-          }
-          default: {
-            break;
-          }
-        }
-        console.log("done checking");
-        // No item to check against? This one wins then.
-        if (!foundItem) {
-          foundKey = key;
-          foundItem = focusItem;
-        }
-      });
+    const foundKey = checkForCollisions(focusChildren, direction, currentItem);
 
     // Found something? Focus it!
     if (foundKey) {
       console.log("navigating to", foundKey);
-      setFocusedItem(foundKey);
+      return setFocusedItem(foundKey);
     }
+
     // Nothing? Search through remaining focus items? (helps enforce container-first logic)
+    console.log("couldnt find a sibling - going outside");
+    const outsideMap = focusMap.filter(([_, focusItem]) => {
+      return focusItem.parent !== currentItem.parent;
+    });
+    const foundOutsideKey = checkForCollisions(
+      outsideMap,
+      direction,
+      currentItem
+    );
+
+    if (foundOutsideKey) {
+      console.log("navigating to", foundKey);
+      return setFocusedItem(foundOutsideKey);
+    }
   };
 
   const navigateUp = () => {

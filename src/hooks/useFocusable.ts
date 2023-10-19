@@ -31,7 +31,6 @@ const useFocusable = ({
   } = useLibraryStore();
   const parentKey = useFocusContext();
   const focused = focusedItem === focusId;
-  console.log("focus items", focusItems);
 
   const getPosition = () => {
     if (ref.current && window) {
