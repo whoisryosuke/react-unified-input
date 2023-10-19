@@ -19,13 +19,6 @@ const Navigator = (props: Props) => {
     }
   }, [input, navigateUpThrottled]);
 
-  // Focus on initial render
-  useEffect(() => {
-    return () => {
-      second;
-    };
-  }, [third]);
-
   return <></>;
 };
 

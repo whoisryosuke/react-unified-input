@@ -15,6 +15,7 @@ interface LibraryState {
   focusedItem: FocusId;
   focusItems: Record<FocusId, FocusItem>;
   addFocusItem: (focusId: FocusId, focusItem: FocusItem) => void;
+  setFocusedItem: (focusId: FocusId) => void;
   removeFocusItem: (focusId: FocusId) => void;
   setFocusPosition: (focusId: FocusId, position: FocusItem["position"]) => void;
 
@@ -31,6 +32,10 @@ export const useLibraryStore = create<LibraryState>()(
     addFocusItem: (focusId, focusItem) =>
       set((state) => ({
         focusItems: { ...state.focusItems, [focusId]: focusItem },
+      })),
+    setFocusedItem: (focusId) =>
+      set(() => ({
+        focusedItem: focusId,
       })),
     removeFocusItem: (focusId) =>
       set((state) => {

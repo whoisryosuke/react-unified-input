@@ -3,10 +3,20 @@ import { useLibraryStore } from "../store/library";
 import { useFocusContext } from "../context/FocusContext";
 import { FocusId } from "../types";
 
-const useFocusable = (focusName: FocusId) => {
+type UseFocusableProps = {
+  focusName: FocusId;
+};
+
+const DEFAULT_USE_FOCUSABLE_PROPS = {
+  focusName: "",
+};
+
+const useFocusable = ({
+  focusName,
+}: UseFocusableProps = DEFAULT_USE_FOCUSABLE_PROPS) => {
   const ref = useRef<HTMLElement>(null);
   const [focusId, setFocusId] = useState(
-    focusName ?? Number(new Date()).toString()
+    focusName !== "" ? focusName : Number(new Date()).toString()
   );
   const {
     focusItems,
