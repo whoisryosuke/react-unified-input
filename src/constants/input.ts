@@ -24,10 +24,10 @@ export type UserInputKeys = keyof typeof DEFAULT_USER_INPUT;
 export type UserInputDeviceKeys = Record<string, UserInputKeys>;
 
 export const DEFAULT_KEYBOARD_MAP: UserInputDeviceKeys = {
-  w: "up",
-  a: "down",
-  s: "left",
-  d: "right",
-  enter: "confirm",
-  esc: "cancel",
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  Enter: "confirm",
+  Escape: "cancel",
 };

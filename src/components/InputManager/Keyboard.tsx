@@ -8,8 +8,10 @@ const KeyboardInput = (props: Props) => {
 
   // If pressed key is our target key then set to true
   function downHandler({ key }: KeyboardEvent): void {
+    console.log("key down", key, keyboardMap, key in keyboardMap);
     if (key in keyboardMap) {
       const inputKey = keyboardMap[key];
+      console.log("setting input", inputKey, true);
       setInput(inputKey, true);
     }
   }
