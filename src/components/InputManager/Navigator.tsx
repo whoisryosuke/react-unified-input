@@ -39,28 +39,61 @@ const checkForCollisions = (
       // Change logic depending on the direction
       switch (direction) {
         case "up": {
-          if (foundItem && foundItem.position.y < focusItem.position.y) {
+          // First check if object is in direction we're going
+          const isCloserOnSide =
+            foundItem && foundItem.position.y < focusItem.position.y;
+          // Also check other axis and make sure it's closest there too
+          const isCloserVertically =
+            foundItem &&
+            Math.abs(foundItem.position.x - currentItem.position.x) >
+              Math.abs(focusItem.position.x - currentItem.position.x);
+          if (isCloserOnSide && isCloserVertically) {
             foundKey = key;
             foundItem = focusItem;
           }
           break;
         }
         case "down": {
-          if (foundItem && foundItem.position.y > focusItem.position.y) {
+          // First check if object is in direction we're going
+          const isCloserOnSide =
+            foundItem && foundItem.position.y > focusItem.position.y;
+          // Also check other axis and make sure it's closest there too
+          const isCloserVertically =
+            foundItem &&
+            Math.abs(foundItem.position.x - currentItem.position.x) >
+              Math.abs(focusItem.position.x - currentItem.position.x);
+          if (isCloserOnSide && isCloserVertically) {
             foundKey = key;
             foundItem = focusItem;
           }
           break;
         }
         case "left": {
-          if (foundItem && foundItem.position.x < focusItem.position.x) {
+          // First check if object is in direction we're going
+          const isCloserOnLeftSide =
+            foundItem && foundItem.position.x < focusItem.position.x;
+          // Also check other axis and make sure it's closest there too
+          const isCloserVertically =
+            foundItem &&
+            Math.abs(foundItem.position.y - currentItem.position.y) >
+              Math.abs(focusItem.position.y - currentItem.position.y);
+
+          if (isCloserOnLeftSide || isCloserVertically) {
             foundKey = key;
             foundItem = focusItem;
           }
           break;
         }
         case "right": {
-          if (foundItem && foundItem.position.x > focusItem.position.x) {
+          // First check if object is in direction we're going
+          const isCloserOnSide =
+            foundItem && foundItem.position.x > focusItem.position.x;
+          // Also check other axis and make sure it's closest there too
+          const isCloserVertically =
+            foundItem &&
+            Math.abs(foundItem.position.y - currentItem.position.y) >
+              Math.abs(focusItem.position.y - currentItem.position.y);
+          if (isCloserOnSide && isCloserVertically) {
             foundKey = key;
             foundItem = focusItem;
           }
@@ -73,6 +106,7 @@ const checkForCollisions = (
       console.log("done checking");
       // No item to check against? This one wins then.
       if (!foundItem) {
+        console.log("default item selected", key, focusItem);
         foundKey = key;
         foundItem = focusItem;
       }
