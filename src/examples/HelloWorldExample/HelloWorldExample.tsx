@@ -2,6 +2,7 @@ import React from "react";
 import FocusContainer from "../../components/FocusContainer/FocusContainer";
 import ExampleFocusComponent from "./ExampleFocusComponent";
 import InputManager from "../../components/InputManager/InputManager";
+import InputMirror from "./InputMirror";
 
 type Props = {};
 
@@ -43,6 +44,8 @@ const HelloWorldExample = (props: Props) => {
           </FocusContainer>
         </div>
       </div>
+
+      <InputMirror />
     </div>
   );
 };
