@@ -7,7 +7,7 @@ interface GamepadRef {
 }
 
 export function useGamepads() {
-  const { gamepadMap, setInputs } = useLibraryStore();
+  const { input, gamepadMap, setInputs } = useLibraryStore();
   const gamepads = useRef<GamepadRef>([]);
   const requestRef = useRef<number>();
 
@@ -23,12 +23,20 @@ export function useGamepads() {
 
     // Convert Gamepad input to generic input
     const gamepadMapArray = Object.keys(gamepadMap);
+    // In order to prevent some unecessary re-renders,
+    // we have a dirty check to see if any input has changed
+    let dirtyInput = false;
     const newInput: Partial<UserInputMap> = {};
     gamepadMapArray.forEach((gamepadKey) => {
       const inputKey = gamepadMap[gamepadKey];
-      newInput[inputKey] = gamepad.buttons[gamepadKey].pressed;
+      const previousInput = input[inputKey];
+      const currentInput = gamepad.buttons[gamepadKey].pressed;
+      if (previousInput !== currentInput) {
+        newInput[inputKey] = currentInput;
+        dirtyInput = true;
+      }
     });
-    setInputs(newInput);
+    if (dirtyInput) setInputs(newInput);
   };
 
   /**
