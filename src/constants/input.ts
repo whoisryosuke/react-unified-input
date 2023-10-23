@@ -31,3 +31,13 @@ export const DEFAULT_KEYBOARD_MAP: UserInputDeviceKeys = {
   Enter: "confirm",
   Escape: "cancel",
 };
+
+// Gamepad uses array index based keys.
+export const DEFAULT_GAMEPAD_MAP: UserInputDeviceKeys = {
+  12: "up",
+  13: "down",
+  14: "left",
+  15: "right",
+  3: "confirm",
+  1: "cancel",
+};

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import { FocusId, FocusItem } from "../types";
 import {
   UserInputMap,
@@ -7,6 +7,7 @@ import {
   DEFAULT_USER_INPUT,
   DEFAULT_KEYBOARD_MAP,
   UserInputDeviceKeys,
+  DEFAULT_GAMEPAD_MAP,
 } from "../constants/input";
 // import type {} from "@redux-devtools/extension"; // required for devtools typing
 
@@ -22,7 +23,9 @@ interface LibraryState {
   // Input
   input: UserInputMap;
   setInput: (key: UserInputKeys, input: boolean) => void;
+  setInputs: (inputs: Partial<UserInputMap>) => void;
   keyboardMap: UserInputDeviceKeys;
+  gamepadMap: UserInputDeviceKeys;
 }
 
 export const useLibraryStore = create<LibraryState>()(
@@ -58,7 +61,10 @@ export const useLibraryStore = create<LibraryState>()(
     input: DEFAULT_USER_INPUT,
     setInput: (key, input) =>
       set((state) => ({ input: { ...state.input, [key]: input } })),
+    setInputs: (inputs) =>
+      set((state) => ({ input: { ...state.input, ...inputs } })),
 
     keyboardMap: DEFAULT_KEYBOARD_MAP,
+    gamepadMap: DEFAULT_GAMEPAD_MAP,
   }))
 );

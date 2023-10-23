@@ -3,10 +3,13 @@ import FocusContainer from "../../components/FocusContainer/FocusContainer";
 import ExampleFocusComponent from "./ExampleFocusComponent";
 import InputManager from "../../components/InputManager/InputManager";
 import InputMirror from "./InputMirror";
+import { useLibraryStore } from "../../store/library";
 
 type Props = {};
 
 const HelloWorldExample = (props: Props) => {
+  const { focusItems } = useLibraryStore();
+  console.log("focusItems", focusItems);
   return (
     <div>
       <InputManager />
