@@ -217,21 +217,20 @@ const Navigator = (props: Props) => {
   );
 
   const checkInput = useCallback(() => {
-    console.log("[NAVIGATOR] Checking for input", input.up);
     if (input.up) {
-      console.log("navigated up");
+      console.log("[NAVIGATOR] navigated up");
       navigateUpThrottled();
     }
     if (input.down) {
-      console.log("navigated down");
+      console.log("[NAVIGATOR] navigated down");
       navigateDownThrottled();
     }
     if (input.left) {
-      console.log("navigated left");
+      console.log("[NAVIGATOR] navigated left");
       navigateLeftThrottled();
     }
     if (input.right) {
-      console.log("navigated right");
+      console.log("[NAVIGATOR] navigated right");
       navigateRightThrottled();
     }
   }, [
