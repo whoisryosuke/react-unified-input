@@ -216,8 +216,8 @@ const Navigator = (props: Props) => {
     []
   );
 
-  // Check for input and navigate
-  useEffect(() => {
+  const checkInput = useCallback(() => {
+    console.log("[NAVIGATOR] Checking for input", input.up);
     if (input.up) {
       console.log("navigated up");
       navigateUpThrottled();
@@ -241,6 +241,19 @@ const Navigator = (props: Props) => {
     navigateLeftThrottled,
     navigateRightThrottled,
   ]);
+
+  // Check for input and navigate
+  useEffect(() => {
+    checkInput();
+  }, [input, checkInput]);
+
+  useEffect(() => {
+    const interval = setInterval(checkInput, 100);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [checkInput]);
 
   return <></>;
 };
