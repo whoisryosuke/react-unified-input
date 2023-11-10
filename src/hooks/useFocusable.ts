@@ -101,6 +101,7 @@ const useFocusable = ({
   }, [handleHoverEnter, handleHoverExit]);
 
   // Check for "confirm" input to run onClick event for focused element
+  // TODO: Add an interval to handled "press and hold" events
   useEffect(() => {
     if (focused && input.confirm) {
       const focusElement = ref.current;
@@ -110,6 +111,17 @@ const useFocusable = ({
       }
     }
   }, [focused, input.confirm]);
+
+  // a11y: If element is focused in system - reflect on platform if possible
+  // In this case, we use the DOM's `focus()` method on the element ref
+  useEffect(() => {
+    if (focused) {
+      const focusElement = ref.current;
+      if (!focusElement) return;
+      focusElement.focus();
+      console.log("element focused", focusElement);
+    }
+  }, [focused]);
 
   return {
     ref,
