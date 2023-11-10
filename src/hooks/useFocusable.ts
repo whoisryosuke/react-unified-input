@@ -78,7 +78,7 @@ const useFocusable = ({
       removeFocusItem(focusId);
       focusAdded.current = false;
     };
-  }, [focusId]);
+  }, [focusId, removeFocusItem]);
 
   // Sync position
   // useEffect(() => {
@@ -100,12 +100,14 @@ const useFocusable = ({
   }, [focusConfig.removeFocusOnHover, focused, setFocusedItem]);
   // TODO: Disable for native?
   useEffect(() => {
-    ref.current?.addEventListener("mouseenter", handleHoverEnter);
-    ref.current?.addEventListener("mouseleave", handleHoverExit);
+    const focusElement = ref.current;
+    if (!focusElement) return;
+    focusElement.addEventListener("mouseenter", handleHoverEnter);
+    focusElement.addEventListener("mouseleave", handleHoverExit);
 
     return () => {
-      ref.current?.removeEventListener("mouseenter", handleHoverEnter);
-      ref.current?.removeEventListener("mouseleave", handleHoverExit);
+      focusElement.removeEventListener("mouseenter", handleHoverEnter);
+      focusElement.removeEventListener("mouseleave", handleHoverExit);
     };
   }, [handleHoverEnter, handleHoverExit]);
 
