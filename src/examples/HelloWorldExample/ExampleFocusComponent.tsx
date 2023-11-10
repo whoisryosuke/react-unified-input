@@ -19,6 +19,7 @@ const ExampleFocusComponent = ({ initialFocus = false }: Props) => {
     <div
       ref={ref}
       style={{ backgroundColor: focused ? "blue" : "transparent" }}
+      onClick={() => console.log("button pressed!")}
     >
       Focusable Component
     </div>

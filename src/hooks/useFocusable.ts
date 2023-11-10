@@ -29,7 +29,7 @@ const useFocusable = ({
     addFocusItem,
     removeFocusItem,
     setFocusedItem,
-    setFocusPosition,
+    input,
   } = useLibraryStore();
   const parentKey = useFocusContext();
   const focused = focusedItem === focusId;
@@ -80,18 +80,7 @@ const useFocusable = ({
     };
   }, [focusId, removeFocusItem]);
 
-  // Sync position
-  // useEffect(() => {
-  //   console.log("initial render - getting position", focusId);
-  //   // Get position
-  //   const position = getPosition();
-  //   if (position) {
-  //     console.log("initial - position", focusId, position);
-  //     setFocusPosition(focusId, position);
-  //   }
-  // }, [ref, focusId, setFocusPosition]);
-
-  // Add hover events to the element
+  // Add mouse hover events to the element
   const handleHoverEnter = useCallback(() => {
     if (!focused) setFocusedItem(focusId);
   }, [focusId, setFocusedItem, focused]);
@@ -110,6 +99,17 @@ const useFocusable = ({
       focusElement.removeEventListener("mouseleave", handleHoverExit);
     };
   }, [handleHoverEnter, handleHoverExit]);
+
+  // Check for "confirm" input to run onClick event for focused element
+  useEffect(() => {
+    if (focused && input.confirm) {
+      const focusElement = ref.current;
+      if (!focusElement) return;
+      if (typeof focusElement.onclick == "function") {
+        focusElement.click();
+      }
+    }
+  }, [focused, input.confirm]);
 
   return {
     ref,
