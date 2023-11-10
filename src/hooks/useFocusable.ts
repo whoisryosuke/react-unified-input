@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLibraryStore } from "../store/library";
 import { useFocusContext } from "../context/FocusContext";
 import { FocusId } from "../types";
@@ -23,10 +23,12 @@ const useFocusable = ({
   );
   const focusAdded = useRef(false);
   const {
+    focusConfig,
     focusItems,
     focusedItem,
     addFocusItem,
     removeFocusItem,
+    setFocusedItem,
     setFocusPosition,
   } = useLibraryStore();
   const parentKey = useFocusContext();
@@ -88,6 +90,24 @@ const useFocusable = ({
   //     setFocusPosition(focusId, position);
   //   }
   // }, [ref, focusId, setFocusPosition]);
+
+  // Add hover events to the element
+  const handleHoverEnter = useCallback(() => {
+    if (!focused) setFocusedItem(focusId);
+  }, [focusId, setFocusedItem, focused]);
+  const handleHoverExit = useCallback(() => {
+    if (focused && focusConfig.removeFocusOnHover) setFocusedItem("");
+  }, [focusConfig.removeFocusOnHover, focused, setFocusedItem]);
+  // TODO: Disable for native?
+  useEffect(() => {
+    ref.current?.addEventListener("mouseenter", handleHoverEnter);
+    ref.current?.addEventListener("mouseleave", handleHoverExit);
+
+    return () => {
+      ref.current?.removeEventListener("mouseenter", handleHoverEnter);
+      ref.current?.removeEventListener("mouseleave", handleHoverExit);
+    };
+  }, [handleHoverEnter, handleHoverExit]);
 
   return {
     ref,

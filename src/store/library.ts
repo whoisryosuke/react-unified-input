@@ -11,7 +11,19 @@ import {
 } from "../constants/input";
 // import type {} from "@redux-devtools/extension"; // required for devtools typing
 
+interface FocusConfig {
+  removeFocusOnHover: boolean;
+}
+
+const DEFAULT_FOCUS_CONFIG: FocusConfig = {
+  removeFocusOnHover: false,
+};
+
 interface LibraryState {
+  // Config
+  focusConfig: FocusConfig;
+  setFocusConfig: (config: Partial<FocusConfig>) => void;
+
   // Focus
   focusedItem: FocusId;
   focusItems: Record<FocusId, FocusItem>;
@@ -30,6 +42,12 @@ interface LibraryState {
 
 export const useLibraryStore = create<LibraryState>()(
   devtools((set) => ({
+    focusConfig: DEFAULT_FOCUS_CONFIG,
+    setFocusConfig: (focusConfig) =>
+      set((state) => ({
+        focusConfig: { ...state.focusConfig, ...focusConfig },
+      })),
+
     focusedItem: "",
     focusItems: {},
     addFocusItem: (focusId, focusItem) =>
