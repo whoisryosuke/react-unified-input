@@ -76,7 +76,7 @@ const checkForCollisions = (
           // First check if object is in direction we're going
           const isCloserOnLeftSide =
             foundItem &&
-            Math.abs(foundItem.position.x - currentItem.position.x) <
+            Math.abs(foundItem.position.x - currentItem.position.x) >
               Math.abs(focusItem.position.x - currentItem.position.x);
           // Also check other axis and make sure it's closest there too
           const isCloserVertically =
@@ -99,7 +99,7 @@ const checkForCollisions = (
           // Also check other axis and make sure it's closest there too
           const isCloserVertically =
             foundItem &&
-            Math.abs(foundItem.position.y - currentItem.position.y) >
+            Math.abs(foundItem.position.y - currentItem.position.y) <
               Math.abs(focusItem.position.y - currentItem.position.y);
 
           foundItem &&
