@@ -16,14 +16,26 @@ const HelloWorldExample = (props: Props) => {
       <div style={{ display: "flex" }}>
         <div>
           <h1>Focus Container #1:</h1>
-          <FocusContainer>
+          <FocusContainer
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <ExampleFocusComponent initialFocus />
             <ExampleFocusComponent />
             <ExampleFocusComponent />
             <ExampleFocusComponent />
           </FocusContainer>
           <h1>Focus Container #2:</h1>
-          <FocusContainer>
+          <FocusContainer
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <ExampleFocusComponent />
             <ExampleFocusComponent />
             <ExampleFocusComponent />
@@ -32,14 +44,26 @@ const HelloWorldExample = (props: Props) => {
         </div>
         <div>
           <h1>Focus Container #3:</h1>
-          <FocusContainer>
+          <FocusContainer
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
             <ExampleFocusComponent />
             <ExampleFocusComponent />
             <ExampleFocusComponent />
             <ExampleFocusComponent />
           </FocusContainer>
           <h1>Focus Container #4:</h1>
-          <FocusContainer>
+          <FocusContainer
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
             <ExampleFocusComponent />
             <ExampleFocusComponent />
             <ExampleFocusComponent />
@@ -47,6 +71,11 @@ const HelloWorldExample = (props: Props) => {
           </FocusContainer>
         </div>
       </div>
+      <style>
+        {`div:focus {
+          border:1px solid teal;
+        }`}
+      </style>
 
       <InputMirror />
     </div>

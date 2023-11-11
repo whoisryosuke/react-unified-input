@@ -8,18 +8,28 @@ const generateId = () =>
 
 type UseFocusableProps = {
   focusName: FocusId;
+  focusable: boolean;
 };
 
 const DEFAULT_USE_FOCUSABLE_PROPS = {
   focusName: "",
+  focusable: true,
 };
 
-const useFocusable = ({
-  focusName,
-}: UseFocusableProps = DEFAULT_USE_FOCUSABLE_PROPS) => {
+const useFocusable = (
+  userConfig: Partial<UseFocusableProps> = DEFAULT_USE_FOCUSABLE_PROPS
+) => {
+  // Since it's a `Parial<>` - fill in gaps with default data
+  const config = {
+    ...DEFAULT_USE_FOCUSABLE_PROPS,
+    ...userConfig,
+  };
+  const { focusName, focusable } = config;
+
+  // The focus element ref
   const ref = useRef<HTMLElement>(null);
   const [focusId, setFocusId] = useState(
-    focusName !== "" ? focusName : generateId()
+    focusName && focusName !== "" ? focusName : generateId()
   );
   const focusAdded = useRef(false);
   const {
@@ -67,9 +77,16 @@ const useFocusable = ({
       return;
     }
     console.log("adding to focus store", focusId);
-    addFocusItem(focusId, { parent: parentKey, position });
+    addFocusItem(focusId, { parent: parentKey, position, focusable });
     focusAdded.current = true;
-  }, [focusId, addFocusItem, removeFocusItem, focusItems, parentKey]);
+  }, [
+    focusId,
+    addFocusItem,
+    removeFocusItem,
+    focusItems,
+    parentKey,
+    focusable,
+  ]);
 
   // If we unmount, remove focus item from store
   useEffect(() => {

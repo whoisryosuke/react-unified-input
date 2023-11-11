@@ -5,7 +5,7 @@ import useFocusable from "../../hooks/useFocusable";
 type Props = {};
 
 const FocusContainer = ({ children, ...props }: PropsWithChildren<Props>) => {
-  const { ref, focusId } = useFocusable();
+  const { ref, focusId } = useFocusable({ focusable: false });
 
   return (
     <FocusContext.Provider value={focusId}>

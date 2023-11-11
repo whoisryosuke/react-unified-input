@@ -172,7 +172,7 @@ const Navigator = (props: Props) => {
     // Nothing? Search through remaining focus items? (helps enforce container-first logic)
     console.log("couldnt find a sibling - going outside");
     const outsideMap = focusMap.filter(([_, focusItem]) => {
-      return focusItem.parent !== currentItem.parent;
+      return focusItem.parent !== currentItem.parent && focusItem.focusable;
     });
     const foundOutsideKey = checkForCollisions(
       outsideMap,
