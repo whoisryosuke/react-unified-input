@@ -84,7 +84,15 @@ const checkForCollisions = (
             Math.abs(foundItem.position.y - currentItem.position.y) >
               Math.abs(focusItem.position.y - currentItem.position.y);
 
-          if (isCloserOnLeftSide || isCloserVertically) {
+          // Basically we check here if the current search item is
+          // closer on the left than the prev item
+          // closer vertically than the prev item
+          // and we also check if it's on the same line (the `==`)
+          if (
+            isCloserOnLeftSide &&
+            (isCloserVertically ||
+              focusItem.position.y == currentItem.position.y)
+          ) {
             foundKey = key;
             foundItem = focusItem;
           }
