@@ -123,6 +123,27 @@ const useFocusable = ({
     }
   }, [focused]);
 
+  // a11y: Check if focus with DOM is out of sync (like tab navigation)
+  const handleFocus = useCallback(() => {
+    console.log("checking DOM focus");
+    const focusElement = ref.current;
+    if (!focusElement) return;
+    if (document.activeElement == focusElement && !focused) {
+      console.log("element is focused in DOM - but not in system");
+      setFocusedItem(focusId);
+    }
+  }, [focusId, setFocusedItem, focused]);
+
+  useEffect(() => {
+    const focusElement = ref.current;
+    if (!focusElement) return;
+    focusElement.addEventListener("focus", handleFocus);
+
+    return () => {
+      focusElement.removeEventListener("focus", handleFocus);
+    };
+  }, [handleFocus]);
+
   return {
     ref,
     focusId,
