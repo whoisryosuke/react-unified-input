@@ -3,6 +3,9 @@ import { useLibraryStore } from "../../store/library";
 import { throttle } from "lodash";
 import { FocusId, FocusItem } from "../../types";
 
+const FOCUS_WEIGHT_HIGH = 5;
+const FOCUS_WEIGHT_LOW = 1;
+
 type NavigationDirections = "up" | "down" | "left" | "right";
 
 const checkForCollisions = (
@@ -10,6 +13,7 @@ const checkForCollisions = (
   direction: NavigationDirections,
   currentItem: FocusItem
 ) => {
+  // If we find a new focus item we store it here to compare against other options
   let foundKey: FocusId | undefined;
   let foundItem: FocusItem | undefined;
   // Filter items based on the direction we're searching
@@ -39,86 +43,125 @@ const checkForCollisions = (
       // Change logic depending on the direction
       switch (direction) {
         case "up": {
-          // First check if object is in direction we're going
-          const isCloserOnSide =
-            foundItem &&
-            Math.abs(foundItem.position.y - currentItem.position.y) >
-              Math.abs(focusItem.position.y - currentItem.position.y);
-          // Also check other axis and make sure it's closest there too
-          const isCloserVertically =
-            foundItem &&
-            Math.abs(foundItem.position.x - currentItem.position.x) >
-              Math.abs(focusItem.position.x - currentItem.position.x);
-          if (isCloserOnSide || isCloserVertically) {
+          if (!foundItem) break;
+
+          // This basically works with a "weight" system.
+          // Inspired by Norigin's Spatial Navigation priority system.
+          // We compare the "found" element to the current one
+          // And the original focus element vs the current one
+          // using the vertical and side measurements.
+          // But since certain directions care more about certain sides
+          // we give more "weight"/priority to the matching side (vertical dir = vertical side)
+          // This helps navigate more in the direction we want
+          const foundComparisonVertical =
+            Math.abs(foundItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_LOW;
+          const baseComparisonVertical =
+            Math.abs(focusItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_LOW;
+
+          const foundComparisonSide =
+            Math.abs(foundItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_HIGH;
+          const baseComparisonSide =
+            Math.abs(focusItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_HIGH;
+
+          const foundComparisonTotal =
+            foundComparisonVertical + foundComparisonSide;
+
+          const baseComparisonTotal =
+            baseComparisonVertical + baseComparisonSide;
+
+          // Is the new object closer than the old object?
+          if (foundComparisonTotal > baseComparisonTotal) {
             foundKey = key;
             foundItem = focusItem;
           }
           break;
         }
         case "down": {
-          // First check if object is in direction we're going
-          const isCloserOnSide =
-            foundItem &&
-            Math.abs(foundItem.position.y - currentItem.position.y) >
-              Math.abs(focusItem.position.y - currentItem.position.y);
-          // Also check other axis and make sure it's closest there too
-          const isCloserVertically =
-            foundItem &&
-            Math.abs(foundItem.position.x - currentItem.position.x) >
-              Math.abs(focusItem.position.x - currentItem.position.x);
-          if (isCloserOnSide || isCloserVertically) {
+          if (!foundItem) break;
+
+          const foundComparisonVertical =
+            Math.abs(foundItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_LOW;
+          const baseComparisonVertical =
+            Math.abs(focusItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_LOW;
+
+          const foundComparisonSide =
+            Math.abs(foundItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_HIGH;
+          const baseComparisonSide =
+            Math.abs(focusItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_HIGH;
+
+          const foundComparisonTotal =
+            foundComparisonVertical + foundComparisonSide;
+
+          const baseComparisonTotal =
+            baseComparisonVertical + baseComparisonSide;
+
+          if (foundComparisonTotal > baseComparisonTotal) {
             foundKey = key;
             foundItem = focusItem;
           }
           break;
         }
         case "left": {
-          // First check if object is in direction we're going
-          const isCloserOnLeftSide =
-            foundItem &&
-            Math.abs(foundItem.position.x - currentItem.position.x) >
-              Math.abs(focusItem.position.x - currentItem.position.x);
-          // Also check other axis and make sure it's closest there too
-          const isCloserVertically =
-            foundItem &&
-            Math.abs(foundItem.position.y - currentItem.position.y) >
-              Math.abs(focusItem.position.y - currentItem.position.y);
+          if (!foundItem) break;
 
-          // Basically we check here if the current search item is
-          // closer on the left than the prev item
-          // closer vertically than the prev item
-          // and we also check if it's on the same line (the `==`)
-          if (
-            isCloserOnLeftSide &&
-            (isCloserVertically ||
-              focusItem.position.y == currentItem.position.y)
-          ) {
+          const foundComparisonVertical =
+            Math.abs(foundItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_HIGH;
+          const baseComparisonVertical =
+            Math.abs(focusItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_HIGH;
+
+          const foundComparisonSide =
+            Math.abs(foundItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_LOW;
+          const baseComparisonSide =
+            Math.abs(focusItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_LOW;
+
+          const foundComparisonTotal =
+            foundComparisonVertical + foundComparisonSide;
+
+          const baseComparisonTotal =
+            baseComparisonVertical + baseComparisonSide;
+
+          if (foundComparisonTotal > baseComparisonTotal) {
             foundKey = key;
             foundItem = focusItem;
           }
           break;
         }
         case "right": {
-          // First check if object is in direction we're going
-          const isCloserOnSide =
-            foundItem &&
-            Math.abs(foundItem.position.x - currentItem.position.x) >
-              Math.abs(focusItem.position.x - currentItem.position.x);
-          // Also check other axis and make sure it's closest there too
-          const isCloserVertically =
-            foundItem &&
-            Math.abs(foundItem.position.y - currentItem.position.y) <
-              Math.abs(focusItem.position.y - currentItem.position.y);
+          if (!foundItem) break;
 
-          foundItem &&
-            console.log(
-              "right movement - closer side",
-              isCloserOnSide,
-              isCloserVertically,
-              Math.abs(foundItem.position.y - currentItem.position.y),
-              Math.abs(focusItem.position.y - currentItem.position.y)
-            );
-          if (isCloserOnSide || isCloserVertically) {
+          const foundComparisonVertical =
+            Math.abs(foundItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_HIGH;
+          const baseComparisonVertical =
+            Math.abs(focusItem.position.y - currentItem.position.y) *
+            FOCUS_WEIGHT_HIGH;
+
+          const foundComparisonSide =
+            Math.abs(foundItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_LOW;
+          const baseComparisonSide =
+            Math.abs(focusItem.position.x - currentItem.position.x) *
+            FOCUS_WEIGHT_LOW;
+
+          const foundComparisonTotal =
+            foundComparisonVertical + foundComparisonSide;
+
+          const baseComparisonTotal =
+            baseComparisonVertical + baseComparisonSide;
+
+          if (foundComparisonTotal > baseComparisonTotal) {
             foundKey = key;
             foundItem = focusItem;
           }
