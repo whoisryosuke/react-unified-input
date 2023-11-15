@@ -11,7 +11,8 @@ export function useGamepads() {
   const gamepads = useRef<GamepadRef>([]);
   const requestRef = useRef<number>();
 
-  const haveEvents = window && "ongamepadconnected" in window;
+  const haveEvents =
+    typeof window !== "undefined" && window && "ongamepadconnected" in window;
 
   const addGamepad = (gamepad: Gamepad) => {
     gamepads.current = {
