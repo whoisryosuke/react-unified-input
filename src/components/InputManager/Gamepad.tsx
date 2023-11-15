@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useLibraryStore } from "../../store/library";
+import { useFocusStore } from "../../store/library";
 import { UserInputMap } from "../../constants/input";
 
 interface GamepadRef {
@@ -7,7 +7,7 @@ interface GamepadRef {
 }
 
 export function useGamepads() {
-  const { input, gamepadMap, setInputs } = useLibraryStore();
+  const { input, gamepadMap, setInputs } = useFocusStore();
   const gamepads = useRef<GamepadRef>([]);
   const requestRef = useRef<number>();
 
@@ -30,7 +30,7 @@ export function useGamepads() {
     gamepadMapArray.forEach((gamepadKey) => {
       const inputKey = gamepadMap[gamepadKey];
       const previousInput = input[inputKey];
-      const currentInput = gamepad.buttons[gamepadKey].pressed;
+      const currentInput = gamepad.buttons[parseInt(gamepadKey)].pressed;
       if (previousInput !== currentInput) {
         newInput[inputKey] = currentInput;
         dirtyInput = true;

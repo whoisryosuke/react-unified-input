@@ -1,10 +1,7 @@
-import React from "react";
-import { useLibraryStore } from "../../store/library";
+import { useFocusStore } from "../../store/library";
 
-type Props = {};
-
-const InputMirror = (props: Props) => {
-  const { input } = useLibraryStore();
+const InputMirror = () => {
+  const { input } = useFocusStore();
 
   const inputMap = Object.entries(input).map(([key, value]) => {
     return (

@@ -1,11 +1,13 @@
-import React, { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 import { FocusContext } from "../../context/FocusContext";
 import useFocusable from "../../hooks/useFocusable";
 
-type Props = {};
+type Props = {
+  style: React.CSSProperties;
+};
 
 const FocusContainer = ({ children, ...props }: PropsWithChildren<Props>) => {
-  const { ref, focusId } = useFocusable({ focusable: false });
+  const { ref, focusId } = useFocusable<HTMLDivElement>({ focusable: false });
 
   return (
     <FocusContext.Provider value={focusId}>

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import { useLibraryStore } from "../../store/library";
+import { useCallback, useEffect } from "react";
+import { useFocusStore } from "../../store/library";
 import { throttle } from "lodash";
 import { FocusId, FocusItem } from "../../types";
 
@@ -183,14 +183,12 @@ const checkForCollisions = (
   return foundKey;
 };
 
-type Props = {};
-
-const Navigator = (props: Props) => {
-  const { input } = useLibraryStore();
+const Navigator = () => {
+  const { input } = useFocusStore();
 
   const navigate = (direction: NavigationDirections) => {
     const { focusItems, focusedItem, setFocusedItem } =
-      useLibraryStore.getState();
+      useFocusStore.getState();
     console.log("navigating", direction);
     // Logic
     // Get current focus item

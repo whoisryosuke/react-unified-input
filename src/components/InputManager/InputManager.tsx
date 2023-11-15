@@ -1,18 +1,31 @@
-import React from "react";
 import KeyboardInput from "./Keyboard";
 import Navigator from "./Navigator";
 import { GamepadInput } from "./Gamepad";
 
-type Props = {};
+type Props = {
+  disableGamepad?: boolean;
+  disableKeyboard?: boolean;
+  disableNavigation?: boolean;
+};
 
-const InputManager = (props: Props) => {
+const InputManager = ({
+  disableGamepad,
+  disableKeyboard,
+  disableNavigation,
+}: Props) => {
   return (
     <>
-      <Navigator />
-      <KeyboardInput />
-      <GamepadInput />
+      {!disableNavigation && <Navigator />}
+      {!disableKeyboard && <KeyboardInput />}
+      {!disableGamepad && <GamepadInput />}
     </>
   );
+};
+
+InputManager.defaultProps = {
+  disableGamepad: false,
+  disableKeyboard: false,
+  disableNavigation: false,
 };
 
 export default InputManager;

@@ -1,10 +1,8 @@
-import React, { useEffect } from "react";
-import { useLibraryStore } from "../../store/library";
+import { useEffect } from "react";
+import { useFocusStore } from "../../store/library";
 
-type Props = {};
-
-const KeyboardInput = (props: Props) => {
-  const { keyboardMap, setInput } = useLibraryStore();
+const KeyboardInput = () => {
+  const { keyboardMap, setInput } = useFocusStore();
 
   // If pressed key is our target key then set to true
   function downHandler({ key }: KeyboardEvent): void {

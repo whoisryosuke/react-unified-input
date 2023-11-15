@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLibraryStore } from "../store/library";
+import { useFocusStore } from "../store/library";
 import { useFocusContext } from "../context/FocusContext";
 import { FocusId } from "../types";
 
@@ -16,9 +16,9 @@ const DEFAULT_USE_FOCUSABLE_PROPS = {
   focusable: true,
 };
 
-const useFocusable = (
+function useFocusable<T extends HTMLElement>(
   userConfig: Partial<UseFocusableProps> = DEFAULT_USE_FOCUSABLE_PROPS
-) => {
+) {
   // Since it's a `Parial<>` - fill in gaps with default data
   const config = {
     ...DEFAULT_USE_FOCUSABLE_PROPS,
@@ -27,7 +27,7 @@ const useFocusable = (
   const { focusName, focusable } = config;
 
   // The focus element ref
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<T>(null);
   const [focusId, setFocusId] = useState(
     focusName && focusName !== "" ? focusName : generateId()
   );
@@ -40,7 +40,7 @@ const useFocusable = (
     removeFocusItem,
     setFocusedItem,
     input,
-  } = useLibraryStore();
+  } = useFocusStore();
   const parentKey = useFocusContext();
   const focused = focusedItem === focusId;
 
@@ -166,6 +166,6 @@ const useFocusable = (
     focusId,
     focused,
   };
-};
+}
 
 export default useFocusable;

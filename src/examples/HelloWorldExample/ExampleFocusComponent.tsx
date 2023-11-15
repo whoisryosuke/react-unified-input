@@ -1,19 +1,19 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import useFocusable from "../../hooks/useFocusable";
-import { useLibraryStore } from "../../store/library";
+import { useFocusStore } from "../../store/library";
 
 type Props = {
   initialFocus?: boolean;
 };
 
 const ExampleFocusComponent = ({ initialFocus = false }: Props) => {
-  const { ref, focusId, focused } = useFocusable();
-  const { setFocusedItem } = useLibraryStore();
+  const { ref, focusId, focused } = useFocusable<HTMLButtonElement>();
+  const { setFocusedItem } = useFocusStore();
 
   // Initially focus
   useEffect(() => {
     initialFocus && setFocusedItem(focusId);
-  }, []);
+  }, [focusId, initialFocus, setFocusedItem]);
 
   return (
     <button

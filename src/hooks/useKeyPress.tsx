@@ -14,14 +14,14 @@ export default function useKeyPress(
   // State for keeping track of whether key is pressed
   const [keyPressed, setKeyPressed] = useState(false);
   // If pressed key is our target key then set to true
-  function downHandler({ key }): void {
+  function downHandler({ key }: KeyboardEvent): void {
     if (key === targetKey) {
       setKeyPressed(true);
       downMethod?.();
     }
   }
   // If released key is our target key then set to false
-  const upHandler = ({ key }): void => {
+  const upHandler = ({ key }: KeyboardEvent): void => {
     if (key === targetKey) {
       setKeyPressed(false);
       upMethod?.();
@@ -32,7 +32,7 @@ export default function useKeyPress(
   // When the user presses key,
   // we set the `pressMethod` to run constantly using setInterval
   useEffect(() => {
-    let interval;
+    let interval: number;
     if (keyPressed && pressMethod) {
       // We loop the function to simulate it happening every frame
       interval = setInterval(pressMethod, 1000 / 60);

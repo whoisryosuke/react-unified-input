@@ -40,7 +40,7 @@ interface LibraryState {
   gamepadMap: UserInputDeviceKeys;
 }
 
-export const useLibraryStore = create<LibraryState>()(
+export const useFocusStore = create<LibraryState>()(
   devtools((set) => ({
     focusConfig: DEFAULT_FOCUS_CONFIG,
     setFocusConfig: (focusConfig) =>
