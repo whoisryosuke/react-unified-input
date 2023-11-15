@@ -195,13 +195,16 @@ const Navigator = () => {
     const currentItem = focusItems[focusedItem];
     if (!currentItem) {
       // No focus item to navigate, just select something?
-      const firstFocusableItem = Object.entries(focusItems).find(
-        ([_, focusItem]) => {
-          return focusItem.parent === "";
-        }
-      );
+      // Ideally a root element with no parent
+      const focusMap = Object.entries(focusItems);
+      const firstFocusableItem = focusMap.find(([_, focusItem]) => {
+        return focusItem.parent === "";
+      });
       if (firstFocusableItem) {
         setFocusedItem(firstFocusableItem[0]);
+      } else {
+        const [focusKey, _] = focusMap[0];
+        setFocusedItem(focusKey);
       }
     }
     // Filter the focus items by children of the parent
