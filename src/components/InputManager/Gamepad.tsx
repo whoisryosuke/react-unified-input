@@ -68,6 +68,8 @@ export function useGamepads() {
 
   // Add event listener for gamepad connecting
   useEffect(() => {
+    if (typeof window == "undefined") return;
+
     window.addEventListener("gamepadconnected", connectGamepadHandler);
 
     return window.removeEventListener(

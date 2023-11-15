@@ -45,6 +45,8 @@ export default function useKeyPress(
 
   // Add event listeners for keypress
   useEffect(() => {
+    if (typeof window == "undefined") return;
+
     window.addEventListener("keydown", downHandler);
     window.addEventListener("keyup", upHandler);
     // Remove event listeners on cleanup
