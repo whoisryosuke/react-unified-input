@@ -51,6 +51,10 @@ function useFocusable<T extends HTMLElement>(
     }
   };
 
+  const focusSelf = () => {
+    setFocusedItem(focusId);
+  };
+
   // Sync focus item with store
   useEffect(() => {
     console.log(
@@ -165,6 +169,7 @@ function useFocusable<T extends HTMLElement>(
     ref,
     focusId,
     focused,
+    focusSelf,
   };
 }
 
