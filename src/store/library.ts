@@ -38,6 +38,8 @@ interface LibraryState {
   setInputs: (inputs: Partial<UserInputMap>) => void;
   keyboardMap: UserInputDeviceKeys;
   gamepadMap: UserInputDeviceKeys;
+  setKeyboardMap: (map: UserInputDeviceKeys) => void;
+  setGamepadMap: (map: UserInputDeviceKeys) => void;
 }
 
 export const useFocusStore = create<LibraryState>()(
@@ -84,5 +86,7 @@ export const useFocusStore = create<LibraryState>()(
 
     keyboardMap: DEFAULT_KEYBOARD_MAP,
     gamepadMap: DEFAULT_GAMEPAD_MAP,
+    setKeyboardMap: (keyboardMap) => set(() => ({ keyboardMap })),
+    setGamepadMap: (gamepadMap) => set(() => ({ gamepadMap })),
   }))
 );
