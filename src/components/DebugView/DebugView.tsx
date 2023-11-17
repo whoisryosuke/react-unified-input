@@ -33,6 +33,7 @@ const DebugView = (props: Props) => {
         height: "100vh",
         top: 0,
         left: 0,
+        pointerEvents: "none",
       }}
     >
       {renderItems}
