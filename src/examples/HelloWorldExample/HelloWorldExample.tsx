@@ -4,6 +4,7 @@ import InputManager from "../../components/InputManager/InputManager";
 import InputMirror from "./InputMirror";
 import { useFocusStore } from "../../store/library";
 import DebugView from "../../components/DebugView/DebugView";
+import ExampleAnimatedComponent from "./ExampleAnimatedComponent";
 
 const HelloWorldExample = () => {
   const { focusItems } = useFocusStore();
@@ -64,8 +65,8 @@ const HelloWorldExample = () => {
           >
             <ExampleFocusComponent />
             <ExampleFocusComponent />
-            <ExampleFocusComponent />
-            <ExampleFocusComponent id="animated" />
+            <ExampleFocusComponent id="hover" />
+            <ExampleAnimatedComponent />
           </FocusContainer>
         </div>
       </div>
@@ -73,12 +74,23 @@ const HelloWorldExample = () => {
         {`div:focus {
           border:1px solid teal;
         }
-        #animated { 
+        #hover { 
           transform: translateY(20px);
         }
-        #animated:hover { 
+        #hover:hover { 
           background:red;
           transform: translateX(20px) translateY(20px);
+        }
+
+        @keyframes move-horizontal {
+          from { transform: translateX(0px) }
+          to { transform: translateX(20px) }
+        }
+        #animated {
+          animation-name: move-horizontal;
+          animation-duration: 4s;
+          animation-direction: alternate;
+          animation-iteration-count: infinite;
         }
         `}
       </style>

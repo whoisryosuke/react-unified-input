@@ -52,6 +52,12 @@ function useFocusable<T extends HTMLElement>(
     }
   };
 
+  const updatePosition = useCallback(() => {
+    // Update the item position in case it changes on hover
+    const position = getPosition();
+    if (position) setFocusPosition(focusId, position);
+  }, [focusId, setFocusPosition]);
+
   const focusSelf = () => {
     setFocusedItem(focusId);
   };
@@ -104,19 +110,15 @@ function useFocusable<T extends HTMLElement>(
 
   // Add mouse hover events to the element
   const handleHoverEnter = useCallback(() => {
-    // Update the item position in case it changes on hover
-    const position = getPosition();
-    if (position) setFocusPosition(focusId, position);
+    updatePosition();
     // Focus the item if it's not already
     if (!focused) setFocusedItem(focusId);
-  }, [focusId, setFocusedItem, setFocusPosition, focused]);
+  }, [focusId, setFocusedItem, updatePosition, focused]);
   const handleHoverExit = useCallback(() => {
-    // Update the item position in case it changes on hover
-    const position = getPosition();
-    if (position) setFocusPosition(focusId, position);
+    updatePosition();
     // Unfocus the item. It's a special config mode.
     if (focused && focusConfig.removeFocusOnHover) setFocusedItem("");
-  }, [focusConfig.removeFocusOnHover, focused, setFocusedItem]);
+  }, [focusConfig.removeFocusOnHover, focused, updatePosition, setFocusedItem]);
   // TODO: Disable for native?
   useEffect(() => {
     const focusElement = ref.current;
@@ -179,6 +181,7 @@ function useFocusable<T extends HTMLElement>(
     focusId,
     focused,
     focusSelf,
+    updatePosition,
   };
 }
 
