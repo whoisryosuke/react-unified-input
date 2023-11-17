@@ -65,14 +65,22 @@ const HelloWorldExample = () => {
             <ExampleFocusComponent />
             <ExampleFocusComponent />
             <ExampleFocusComponent />
-            <ExampleFocusComponent />
+            <ExampleFocusComponent id="animated" />
           </FocusContainer>
         </div>
       </div>
       <style>
         {`div:focus {
           border:1px solid teal;
-        }`}
+        }
+        #animated { 
+          transform: translateY(20px);
+        }
+        #animated:hover { 
+          background:red;
+          transform: translateX(20px) translateY(20px);
+        }
+        `}
       </style>
 
       <InputMirror />
