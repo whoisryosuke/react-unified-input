@@ -3,6 +3,7 @@ import ExampleFocusComponent from "./ExampleFocusComponent";
 import InputManager from "../../components/InputManager/InputManager";
 import InputMirror from "./InputMirror";
 import { useFocusStore } from "../../store/library";
+import DebugView from "../../components/DebugView/DebugView";
 
 const HelloWorldExample = () => {
   const { focusItems } = useFocusStore();
@@ -75,6 +76,7 @@ const HelloWorldExample = () => {
       </style>
 
       <InputMirror />
+      <DebugView />
     </div>
   );
 };

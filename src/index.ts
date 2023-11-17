@@ -1,3 +1,4 @@
+import DebugView from "./components/DebugView/DebugView";
 import FocusContainer from "./components/FocusContainer/FocusContainer";
 import InputManager from "./components/InputManager/InputManager";
 import { FocusContext } from "./context/FocusContext";
@@ -10,4 +11,5 @@ export {
   FocusContainer,
   useFocusStore,
   FocusContext,
+  DebugView,
 };
