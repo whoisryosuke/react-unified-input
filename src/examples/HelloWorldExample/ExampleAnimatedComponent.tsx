@@ -1,12 +1,10 @@
 import { useEffect } from "react";
 import useFocusable from "../../hooks/useFocusable";
-import { useFocusStore } from "../../store/library";
 
 type Props = React.HTMLAttributes<HTMLButtonElement>;
 
 const ExampleFocusComponent = ({ ...props }: Props) => {
-  const { ref, focusId, focused, updatePosition } =
-    useFocusable<HTMLButtonElement>();
+  const { ref, focused, updatePosition } = useFocusable<HTMLButtonElement>();
 
   useEffect(() => {
     const interval = setInterval(updatePosition, 420);
