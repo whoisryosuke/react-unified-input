@@ -89,6 +89,7 @@ function useFocusable<T extends HTMLElement>(
     }
     console.log("adding to focus store", focusId);
     addFocusItem(focusId, { parent: parentKey, position, focusable });
+    ref.current?.setAttribute("focus-id", focusId);
     focusAdded.current = true;
   }, [
     focusId,
@@ -104,6 +105,7 @@ function useFocusable<T extends HTMLElement>(
     return () => {
       console.log("unmounting focus", focusId);
       removeFocusItem(focusId);
+      ref.current?.removeAttribute("focus-id");
       focusAdded.current = false;
     };
   }, [focusId, removeFocusItem]);

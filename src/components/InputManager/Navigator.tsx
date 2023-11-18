@@ -187,8 +187,10 @@ const Navigator = () => {
   const { input } = useFocusStore();
 
   const navigate = (direction: NavigationDirections) => {
-    const { focusItems, focusedItem, setFocusedItem } =
+    const { focusItems, focusedItem, setFocusedItem, setFocusPosition } =
       useFocusStore.getState();
+
+    if (typeof window == "undefined") return;
     console.log("navigating", direction);
     // Logic
     // Get current focus item
@@ -212,6 +214,16 @@ const Navigator = () => {
     const focusChildren = focusMap.filter(([_, focusItem]) => {
       return focusItem.parent === currentItem.parent;
     });
+    // Update positions of children
+    focusChildren.forEach(([focusId, focusItem]) => {
+      const focusRef = document.querySelector(`[focus-id="${focusId}"]`);
+      if (!focusRef) return;
+
+      const newPosition = focusRef.getBoundingClientRect();
+      setFocusPosition(focusId, newPosition);
+      focusItem.position = newPosition;
+    });
+
     // Look for something below
     const foundKey = checkForCollisions(focusChildren, direction, currentItem);
 
@@ -225,6 +237,15 @@ const Navigator = () => {
     console.log("couldnt find a sibling - going outside");
     const outsideMap = focusMap.filter(([_, focusItem]) => {
       return focusItem.parent !== currentItem.parent && focusItem.focusable;
+    });
+    // Update positions of children
+    outsideMap.forEach(([focusId, focusItem]) => {
+      const focusRef = document.querySelector(`[focus-id="${focusId}"]`);
+      if (!focusRef) return;
+
+      const newPosition = focusRef.getBoundingClientRect();
+      setFocusPosition(focusId, newPosition);
+      focusItem.position = newPosition;
     });
     const foundOutsideKey = checkForCollisions(
       outsideMap,
