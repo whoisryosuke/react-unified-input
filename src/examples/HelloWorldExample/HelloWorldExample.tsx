@@ -5,13 +5,23 @@ import InputMirror from "./InputMirror";
 import { useFocusStore } from "../../store/library";
 import DebugView from "../../components/DebugView/DebugView";
 import ExampleAnimatedComponent from "./ExampleAnimatedComponent";
+import KeyGuide from "../KeyGuide/KeyGuide";
 
 const HelloWorldExample = () => {
-  const { focusItems } = useFocusStore();
+  const { focusItems, currentDevice } = useFocusStore();
   console.log("focusItems", focusItems);
   return (
     <div>
       <InputManager />
+      <div>
+        <h2>Current Device: {currentDevice}</h2>
+        <h3 style={{ margin: 0 }}>Key guide</h3>
+        <div style={{ display: "flex" }}>
+          <KeyGuide input="up" />
+          <KeyGuide input="left" />
+          <KeyGuide input="right" />
+        </div>
+      </div>
       <div style={{ display: "flex" }}>
         <div>
           <h1>Focus Container #1:</h1>
@@ -75,7 +85,7 @@ const HelloWorldExample = () => {
           border:1px solid teal;
         }
         #hover { 
-          transform: translateY(20px);
+          transform: translateY(40px);
         }
         #hover:hover { 
           background:red;

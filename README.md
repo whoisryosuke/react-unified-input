@@ -55,6 +55,24 @@ If you need to change the keymap for keyboard or gamepad, you can use the `setGa
 1. Use the hook inside your component and : `const { setGamepadMap } = useFocusStore();`
 1. Change the keymap to your liking. You can see an example [in the default keymaps for each device.](src\constants\input.ts)
 
+### Key guides
+
+Sometimes in UI you need to convey the meaning behind a certain input. This is incredibly common in video game where the user needs to be reminded what button on their gamepad does what. We see this in games like Assassin's Creed or Kingdom Hearts. If you're playing on PlayStation with a gamepad you'll see their trademark symbols - but if you play on PC using a keyboard, you might see keyboard buttons instead.
+
+These are commonly referred to as "key guides" and they are text and/or iconography that informs the user how their device interfaces with the application or game. And as I described, they're often adaptive to the current conditions - so if the user swaps devices, the key guides need to update to match the correct device.
+
+We expose a `currentDevice` from the `useFocusStore()` hook that lets you know what was the last device in use.
+
+Using this variable combined with `keyboardMap` and `gamepadMap`, you can create a `<KeyGuide>` component that displays the input to the user as their current device. So you can have a `<KeyGuide input="confirm" />` that shows the user the "Enter" key on keyboard or the "X" key on gamepad.
+
+### Animated components
+
+What happens when a component is animated but has focus? Ideally the focus travels with the element. And with this library - it does! - kinda.
+
+When the user presses any button to navigate, the position of all focus items are updated. But if for some reason the focus isn't updating it's position at the rate you need, you can manually update the focus element's position using the `updatePosition()` function provided through the `useFocusStore()` hook.
+
+You can see an example of this in [ExampleAnimatedComponent](src/examples/HelloWorldExample/ExampleAnimatedComponent.tsx).
+
 ## Release
 
 1. Bump version in `package.json`

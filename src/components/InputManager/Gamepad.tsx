@@ -7,7 +7,8 @@ interface GamepadRef {
 }
 
 export function useGamepads() {
-  const { input, gamepadMap, setInputs } = useFocusStore();
+  const { input, gamepadMap, setInputs, currentDevice, setCurrentDevice } =
+    useFocusStore();
   const gamepads = useRef<GamepadRef>([]);
   const requestRef = useRef<number>();
 
@@ -20,24 +21,39 @@ export function useGamepads() {
       [gamepad.index]: gamepad,
     };
 
-    // console.log("[GAMEPAD] Updating gamepad input");
-
     // Convert Gamepad input to generic input
     const gamepadMapArray = Object.keys(gamepadMap);
+
     // In order to prevent some unecessary re-renders,
     // we have a dirty check to see if any input has changed
     let dirtyInput = false;
+
+    // Since this streams data, we need a way to turn that off when other devices are in use
+    // We also check if any button was pressed at all
+    // This confirms the gamepad is indeed in use
+    let isPressed = false;
+
+    // Input state to save to store later
     const newInput: Partial<UserInputMap> = {};
+
     gamepadMapArray.forEach((gamepadKey) => {
       const inputKey = gamepadMap[gamepadKey];
       const previousInput = input[inputKey];
       const currentInput = gamepad.buttons[parseInt(gamepadKey)].pressed;
+      if (currentInput && !isPressed) isPressed = true;
       if (previousInput !== currentInput) {
         newInput[inputKey] = currentInput;
         dirtyInput = true;
       }
     });
-    if (dirtyInput) setInputs(newInput);
+
+    // Set device active
+    if (currentDevice !== "GAMEPAD" && isPressed) setCurrentDevice("GAMEPAD");
+
+    // If something was pressed - always update
+    if (dirtyInput && (isPressed || currentDevice == "GAMEPAD")) {
+      setInputs(newInput);
+    }
   };
 
   /**

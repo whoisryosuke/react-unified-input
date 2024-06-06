@@ -8,6 +8,7 @@ import {
   DEFAULT_KEYBOARD_MAP,
   UserInputDeviceKeys,
   DEFAULT_GAMEPAD_MAP,
+  InputDevices,
 } from "../constants/input";
 // import type {} from "@redux-devtools/extension"; // required for devtools typing
 
@@ -36,6 +37,10 @@ interface LibraryState {
   input: UserInputMap;
   setInput: (key: UserInputKeys, input: boolean) => void;
   setInputs: (inputs: Partial<UserInputMap>) => void;
+  currentDevice: InputDevices;
+  setCurrentDevice: (currentDevice: InputDevices) => void;
+
+  // Keymaps
   keyboardMap: UserInputDeviceKeys;
   gamepadMap: UserInputDeviceKeys;
   setKeyboardMap: (map: UserInputDeviceKeys) => void;
@@ -83,6 +88,9 @@ export const useFocusStore = create<LibraryState>()(
       set((state) => ({ input: { ...state.input, [key]: input } })),
     setInputs: (inputs) =>
       set((state) => ({ input: { ...state.input, ...inputs } })),
+
+    currentDevice: "KEYBOARD",
+    setCurrentDevice: (currentDevice) => set(() => ({ currentDevice })),
 
     keyboardMap: DEFAULT_KEYBOARD_MAP,
     gamepadMap: DEFAULT_GAMEPAD_MAP,

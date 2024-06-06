@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useFocusStore } from "../../store/library";
 
 const KeyboardInput = () => {
-  const { keyboardMap, setInput } = useFocusStore();
+  const { keyboardMap, setInput, currentDevice, setCurrentDevice } =
+    useFocusStore();
 
   // If pressed key is our target key then set to true
   function downHandler({ key }: KeyboardEvent): void {
@@ -11,6 +12,7 @@ const KeyboardInput = () => {
       const inputKey = keyboardMap[key];
       console.log("setting input", inputKey, true);
       setInput(inputKey, true);
+      if (currentDevice !== "KEYBOARD") setCurrentDevice("KEYBOARD");
     }
   }
   // If released key is our target key then set to false

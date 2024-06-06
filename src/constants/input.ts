@@ -41,3 +41,5 @@ export const DEFAULT_GAMEPAD_MAP: UserInputDeviceKeys = {
   3: "confirm",
   1: "cancel",
 };
+
+export type InputDevices = "KEYBOARD" | "GAMEPAD" | "CUSTOM";
