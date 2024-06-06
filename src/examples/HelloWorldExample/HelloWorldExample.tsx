@@ -8,13 +8,14 @@ import ExampleAnimatedComponent from "./ExampleAnimatedComponent";
 import KeyGuide from "../KeyGuide/KeyGuide";
 
 const HelloWorldExample = () => {
-  const { focusItems, currentDevice } = useFocusStore();
+  const { focusItems, currentDevice, deviceName } = useFocusStore();
   console.log("focusItems", focusItems);
   return (
     <div>
       <InputManager />
       <div>
         <h2>Current Device: {currentDevice}</h2>
+        <h3>Device Name: {deviceName}</h3>
         <h3 style={{ margin: 0 }}>Key guide</h3>
         <div style={{ display: "flex" }}>
           <KeyGuide input="up" />

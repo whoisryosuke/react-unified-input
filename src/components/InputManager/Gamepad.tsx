@@ -7,8 +7,15 @@ interface GamepadRef {
 }
 
 export function useGamepads() {
-  const { input, gamepadMap, setInputs, currentDevice, setCurrentDevice } =
-    useFocusStore();
+  const {
+    input,
+    gamepadMap,
+    setInputs,
+    currentDevice,
+    setCurrentDevice,
+    deviceName,
+    setDeviceName,
+  } = useFocusStore();
   const gamepads = useRef<GamepadRef>([]);
   const requestRef = useRef<number>();
 
@@ -48,7 +55,10 @@ export function useGamepads() {
     });
 
     // Set device active
-    if (currentDevice !== "GAMEPAD" && isPressed) setCurrentDevice("GAMEPAD");
+    if (currentDevice !== "GAMEPAD" && isPressed) {
+      setCurrentDevice("GAMEPAD");
+      setDeviceName(gamepad.id);
+    }
 
     // If something was pressed - always update
     if (dirtyInput && (isPressed || currentDevice == "GAMEPAD")) {
@@ -62,6 +72,8 @@ export function useGamepads() {
    */
   const connectGamepadHandler = (e: GamepadEvent) => {
     console.log("[GAMEPAD] Connecting controller", e.gamepad);
+
+    // Initially scans for input
     addGamepad(e.gamepad);
   };
 

@@ -65,6 +65,8 @@ We expose a `currentDevice` from the `useFocusStore()` hook that lets you know w
 
 Using this variable combined with `keyboardMap` and `gamepadMap`, you can create a `<KeyGuide>` component that displays the input to the user as their current device. So you can have a `<KeyGuide input="confirm" />` that shows the user the "Enter" key on keyboard or the "X" key on gamepad.
 
+You can also get the device name using `deviceName` to check if it's a DualSense, DualShock, Xbox, etc gamepad.
+
 ### Animated components
 
 What happens when a component is animated but has focus? Ideally the focus travels with the element. And with this library - it does! - kinda.
