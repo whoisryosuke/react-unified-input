@@ -13,7 +13,6 @@ export function useGamepads() {
     setInputs,
     currentDevice,
     setCurrentDevice,
-    deviceName,
     setDeviceName,
   } = useFocusStore();
   const gamepads = useRef<GamepadRef>([]);
