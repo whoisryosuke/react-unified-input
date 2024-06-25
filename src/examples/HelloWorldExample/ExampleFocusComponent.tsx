@@ -6,7 +6,11 @@ type Props = React.HTMLAttributes<HTMLButtonElement> & {
   initialFocus?: boolean;
 };
 
-const ExampleFocusComponent = ({ initialFocus = false, ...props }: Props) => {
+const ExampleFocusComponent = ({
+  initialFocus = false,
+  style,
+  ...props
+}: Props) => {
   const { ref, focusId, focused } = useFocusable<HTMLButtonElement>();
   const { setFocusedItem } = useFocusStore();
 
@@ -18,7 +22,10 @@ const ExampleFocusComponent = ({ initialFocus = false, ...props }: Props) => {
   return (
     <button
       ref={ref}
-      style={{ backgroundColor: focused ? "blue" : "transparent" }}
+      style={{
+        backgroundColor: focused ? "blue" : "transparent",
+        ...style,
+      }}
       onClick={() => console.log("button pressed!")}
       {...props}
     >

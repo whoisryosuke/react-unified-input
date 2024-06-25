@@ -9,22 +9,24 @@ const generateId = () =>
 type UseFocusableProps = {
   focusName: FocusId;
   focusable: boolean;
+  isParent: boolean;
 };
 
-const DEFAULT_USE_FOCUSABLE_PROPS = {
+const DEFAULT_USE_FOCUSABLE_PROPS: UseFocusableProps = {
   focusName: "",
   focusable: true,
+  isParent: false,
 };
 
 function useFocusable<T extends HTMLElement>(
   userConfig: Partial<UseFocusableProps> = DEFAULT_USE_FOCUSABLE_PROPS
 ) {
-  // Since it's a `Parial<>` - fill in gaps with default data
+  // Since it's a `Partial<>` - fill in gaps with default data
   const config = {
     ...DEFAULT_USE_FOCUSABLE_PROPS,
     ...userConfig,
   };
-  const { focusName, focusable } = config;
+  const { focusName, focusable, isParent } = config;
 
   // The focus element ref
   const ref = useRef<T>(null);
@@ -64,12 +66,6 @@ function useFocusable<T extends HTMLElement>(
 
   // Sync focus item with store
   useEffect(() => {
-    console.log(
-      "syncing focus position with store",
-      focusId,
-      focusAdded.current
-    );
-
     // If we already added it, don't add again
     if (focusAdded.current) return;
 
@@ -88,7 +84,7 @@ function useFocusable<T extends HTMLElement>(
       return;
     }
     console.log("adding to focus store", focusId);
-    addFocusItem(focusId, { parent: parentKey, position, focusable });
+    addFocusItem(focusId, { parent: parentKey, position, focusable, isParent });
     ref.current?.setAttribute("focus-id", focusId);
     focusAdded.current = true;
   }, [

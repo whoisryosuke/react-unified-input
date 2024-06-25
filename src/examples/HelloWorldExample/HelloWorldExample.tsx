@@ -9,7 +9,7 @@ import KeyGuide from "../KeyGuide/KeyGuide";
 
 const HelloWorldExample = () => {
   const { focusItems, currentDevice, deviceName } = useFocusStore();
-  console.log("focusItems", focusItems);
+  // console.log("focusItems", focusItems);
   return (
     <div>
       <InputManager />
@@ -78,6 +78,36 @@ const HelloWorldExample = () => {
             <ExampleFocusComponent />
             <ExampleFocusComponent id="hover" />
             <ExampleAnimatedComponent />
+          </FocusContainer>
+        </div>
+        <div>
+          <FocusContainer
+            style={{
+              width: "70%",
+              position: "absolute",
+              bottom: 100,
+              right: 16,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <ExampleFocusComponent
+              style={{
+                width: "100%",
+              }}
+            />
+            <FocusContainer
+              style={{
+                width: "100%",
+
+                marginTop: 16,
+              }}
+            >
+              <ExampleFocusComponent />
+              <ExampleFocusComponent />
+              <ExampleFocusComponent />
+            </FocusContainer>
           </FocusContainer>
         </div>
       </div>

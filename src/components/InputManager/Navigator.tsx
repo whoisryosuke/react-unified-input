@@ -1,10 +1,11 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useFocusStore } from "../../store/library";
 import { throttle } from "lodash";
 import { FocusId, FocusItem } from "../../types";
 
-const FOCUS_WEIGHT_HIGH = 5;
+const FOCUS_WEIGHT_HIGH = 10;
 const FOCUS_WEIGHT_LOW = 1;
+const THROTTLE_SPEED = 300; // in milliseconds
 
 type NavigationDirections = "up" | "down" | "left" | "right";
 
@@ -41,6 +42,10 @@ const checkForCollisions = (
       );
       // Check if it's the closest item
       // Change logic depending on the direction
+      let foundComparisonVertical;
+      let baseComparisonVertical;
+      let foundComparisonSide;
+      let baseComparisonSide;
       switch (direction) {
         case "up": {
           if (!foundItem) break;
@@ -53,122 +58,94 @@ const checkForCollisions = (
           // But since certain directions care more about certain sides
           // we give more "weight"/priority to the matching side (vertical dir = vertical side)
           // This helps navigate more in the direction we want
-          const foundComparisonVertical =
+          foundComparisonVertical =
             Math.abs(foundItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_LOW;
-          const baseComparisonVertical =
+          baseComparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_LOW;
 
-          const foundComparisonSide =
+          foundComparisonSide =
             Math.abs(foundItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_HIGH;
-          const baseComparisonSide =
+          baseComparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_HIGH;
-
-          const foundComparisonTotal =
-            foundComparisonVertical + foundComparisonSide;
-
-          const baseComparisonTotal =
-            baseComparisonVertical + baseComparisonSide;
-
-          // Is the new object closer than the old object?
-          if (foundComparisonTotal > baseComparisonTotal) {
-            foundKey = key;
-            foundItem = focusItem;
-          }
           break;
         }
         case "down": {
           if (!foundItem) break;
 
-          const foundComparisonVertical =
+          foundComparisonVertical =
             Math.abs(foundItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_LOW;
-          const baseComparisonVertical =
+          baseComparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_LOW;
 
-          const foundComparisonSide =
+          foundComparisonSide =
             Math.abs(foundItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_HIGH;
-          const baseComparisonSide =
+          baseComparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_HIGH;
-
-          const foundComparisonTotal =
-            foundComparisonVertical + foundComparisonSide;
-
-          const baseComparisonTotal =
-            baseComparisonVertical + baseComparisonSide;
-
-          if (foundComparisonTotal > baseComparisonTotal) {
-            foundKey = key;
-            foundItem = focusItem;
-          }
           break;
         }
         case "left": {
           if (!foundItem) break;
 
-          const foundComparisonVertical =
+          foundComparisonVertical =
             Math.abs(foundItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_HIGH;
-          const baseComparisonVertical =
+          baseComparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_HIGH;
 
-          const foundComparisonSide =
+          foundComparisonSide =
             Math.abs(foundItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_LOW;
-          const baseComparisonSide =
+          baseComparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_LOW;
-
-          const foundComparisonTotal =
-            foundComparisonVertical + foundComparisonSide;
-
-          const baseComparisonTotal =
-            baseComparisonVertical + baseComparisonSide;
-
-          if (foundComparisonTotal > baseComparisonTotal) {
-            foundKey = key;
-            foundItem = focusItem;
-          }
           break;
         }
         case "right": {
           if (!foundItem) break;
 
-          const foundComparisonVertical =
+          foundComparisonVertical =
             Math.abs(foundItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_HIGH;
-          const baseComparisonVertical =
+          baseComparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_HIGH;
 
-          const foundComparisonSide =
+          foundComparisonSide =
             Math.abs(foundItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_LOW;
-          const baseComparisonSide =
+          baseComparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_LOW;
-
-          const foundComparisonTotal =
-            foundComparisonVertical + foundComparisonSide;
-
-          const baseComparisonTotal =
-            baseComparisonVertical + baseComparisonSide;
-
-          if (foundComparisonTotal > baseComparisonTotal) {
-            foundKey = key;
-            foundItem = focusItem;
-          }
           break;
         }
         default: {
           break;
+        }
+      }
+
+      if (
+        foundComparisonVertical &&
+        foundComparisonSide &&
+        baseComparisonVertical &&
+        baseComparisonSide
+      ) {
+        const foundComparisonTotal =
+          foundComparisonVertical + foundComparisonSide;
+
+        const baseComparisonTotal = baseComparisonVertical + baseComparisonSide;
+
+        if (foundComparisonTotal > baseComparisonTotal) {
+          foundKey = key;
+          foundItem = focusItem;
         }
       }
       console.log("done checking");
@@ -180,11 +157,15 @@ const checkForCollisions = (
       }
     });
 
-  return foundKey;
+  return { foundKey, foundItem };
 };
 
 const Navigator = () => {
   const { input } = useFocusStore();
+  const navigateUpThrottled = useRef();
+  const navigateDownThrottled = useRef();
+  const navigateLeftThrottled = useRef();
+  const navigateRightThrottled = useRef();
 
   const navigate = (direction: NavigationDirections) => {
     const { focusItems, focusedItem, setFocusedItem, setFocusPosition } =
@@ -225,11 +206,29 @@ const Navigator = () => {
     });
 
     // Look for something below
-    const foundKey = checkForCollisions(focusChildren, direction, currentItem);
+    const { foundKey, foundItem } = checkForCollisions(
+      focusChildren,
+      direction,
+      currentItem
+    );
+
+    // Did we find a nested parent? Focus the first item inside that.
+    if (foundItem && foundItem.isParent) {
+      console.log("Parent focused finding first child", foundItem, foundKey);
+      // Focus the first child of container
+      const focusChild = focusMap.find(
+        ([focusId, focusItem]) => focusItem.parent == foundKey
+      );
+      console.log("first child found", focusChild);
+      if (focusChild) {
+        const [firstChildKey, firstChild] = focusChild;
+        return setFocusedItem(firstChildKey);
+      }
+    }
 
     // Found something? Focus it!
     if (foundKey) {
-      console.log("navigating to", foundKey);
+      console.log("navigating to test", foundKey, typeof foundKey);
       return setFocusedItem(foundKey);
     }
 
@@ -247,7 +246,7 @@ const Navigator = () => {
       setFocusPosition(focusId, newPosition);
       focusItem.position = newPosition;
     });
-    const foundOutsideKey = checkForCollisions(
+    const { foundKey: foundOutsideKey } = checkForCollisions(
       outsideMap,
       direction,
       currentItem
@@ -272,39 +271,31 @@ const Navigator = () => {
   const navigateRight = () => {
     navigate("right");
   };
-  const navigateUpThrottled = useCallback(
-    () => throttle(navigateUp, 10000)(),
-    []
-  );
-  const navigateDownThrottled = useCallback(
-    () => throttle(navigateDown, 10000)(),
-    []
-  );
-  const navigateLeftThrottled = useCallback(
-    () => throttle(navigateLeft, 10000)(),
-    []
-  );
-  const navigateRightThrottled = useCallback(
-    () => throttle(navigateRight, 10000)(),
-    []
-  );
+
+  useEffect(() => {
+    navigateUpThrottled.current = throttle(navigateUp, THROTTLE_SPEED);
+
+    navigateDownThrottled.current = throttle(navigateDown, THROTTLE_SPEED);
+    navigateLeftThrottled.current = throttle(navigateLeft, THROTTLE_SPEED);
+    navigateRightThrottled.current = throttle(navigateRight, THROTTLE_SPEED);
+  }, []);
 
   const checkInput = useCallback(() => {
-    if (input.up) {
+    if (input.up && navigateUpThrottled.current) {
       console.log("[NAVIGATOR] navigated up");
-      navigateUpThrottled();
+      navigateUpThrottled.current();
     }
-    if (input.down) {
+    if (input.down && navigateDownThrottled.current) {
       console.log("[NAVIGATOR] navigated down");
-      navigateDownThrottled();
+      navigateDownThrottled.current();
     }
-    if (input.left) {
+    if (input.left && navigateLeftThrottled.current) {
       console.log("[NAVIGATOR] navigated left");
-      navigateLeftThrottled();
+      navigateLeftThrottled.current();
     }
-    if (input.right) {
+    if (input.right && navigateRightThrottled.current) {
       console.log("[NAVIGATOR] navigated right");
-      navigateRightThrottled();
+      navigateRightThrottled.current();
     }
   }, [
     input,

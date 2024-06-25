@@ -7,7 +7,7 @@ type Props = {
 };
 
 const FocusContainer = ({ children, ...props }: PropsWithChildren<Props>) => {
-  const { ref, focusId } = useFocusable<HTMLDivElement>({ focusable: false });
+  const { ref, focusId } = useFocusable<HTMLDivElement>({ isParent: true });
 
   return (
     <FocusContext.Provider value={focusId}>
