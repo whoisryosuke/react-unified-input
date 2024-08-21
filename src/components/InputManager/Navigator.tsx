@@ -5,7 +5,7 @@ import { FocusId, FocusItem } from "../../types";
 
 const FOCUS_WEIGHT_HIGH = 10;
 const FOCUS_WEIGHT_LOW = 1;
-const THROTTLE_SPEED = 300; // in milliseconds
+const THROTTLE_SPEED = 100; // in milliseconds
 
 type NavigationDirections = "up" | "down" | "left" | "right";
 
@@ -160,9 +160,11 @@ const checkForCollisions = (
   return { foundKey, foundItem };
 };
 
+type NavFunc = (direction: NavigationDirections) => void;
+
 const Navigator = () => {
   const { input } = useFocusStore();
-  const navigateUpThrottled = useRef();
+  const navigateThrottled = useRef<NavFunc>();
   const navigateDownThrottled = useRef();
   const navigateLeftThrottled = useRef();
   const navigateRightThrottled = useRef();
@@ -273,7 +275,7 @@ const Navigator = () => {
   };
 
   useEffect(() => {
-    navigateUpThrottled.current = throttle(navigateUp, THROTTLE_SPEED);
+    navigateThrottled.current = throttle(navigate, THROTTLE_SPEED);
 
     navigateDownThrottled.current = throttle(navigateDown, THROTTLE_SPEED);
     navigateLeftThrottled.current = throttle(navigateLeft, THROTTLE_SPEED);
@@ -281,29 +283,23 @@ const Navigator = () => {
   }, []);
 
   const checkInput = useCallback(() => {
-    if (input.up && navigateUpThrottled.current) {
+    if (input.up && navigateThrottled.current) {
       console.log("[NAVIGATOR] navigated up");
-      navigateUpThrottled.current();
+      navigateThrottled.current("up");
     }
-    if (input.down && navigateDownThrottled.current) {
+    if (input.down && navigateThrottled.current) {
       console.log("[NAVIGATOR] navigated down");
-      navigateDownThrottled.current();
+      navigateThrottled.current("down");
     }
-    if (input.left && navigateLeftThrottled.current) {
+    if (input.left && navigateThrottled.current) {
       console.log("[NAVIGATOR] navigated left");
-      navigateLeftThrottled.current();
+      navigateThrottled.current("left");
     }
-    if (input.right && navigateRightThrottled.current) {
+    if (input.right && navigateThrottled.current) {
       console.log("[NAVIGATOR] navigated right");
-      navigateRightThrottled.current();
+      navigateThrottled.current("right");
     }
-  }, [
-    input,
-    navigateUpThrottled,
-    navigateDownThrottled,
-    navigateLeftThrottled,
-    navigateRightThrottled,
-  ]);
+  }, [input, navigateThrottled]);
 
   // Check for input and navigate
   useEffect(() => {
