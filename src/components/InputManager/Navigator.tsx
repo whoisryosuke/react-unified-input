@@ -133,10 +133,10 @@ const checkForCollisions = (
       }
 
       if (
-        foundComparisonVertical &&
-        foundComparisonSide &&
-        baseComparisonVertical &&
-        baseComparisonSide
+        foundComparisonVertical != undefined &&
+        foundComparisonSide != undefined &&
+        baseComparisonVertical != undefined &&
+        baseComparisonSide != undefined
       ) {
         const foundComparisonTotal =
           foundComparisonVertical + foundComparisonSide;
