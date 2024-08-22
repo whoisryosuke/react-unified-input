@@ -260,26 +260,8 @@ const Navigator = () => {
     }
   };
 
-  const navigateUp = () => {
-    navigate("up");
-  };
-
-  const navigateDown = () => {
-    navigate("down");
-  };
-  const navigateLeft = () => {
-    navigate("left");
-  };
-  const navigateRight = () => {
-    navigate("right");
-  };
-
   useEffect(() => {
     navigateThrottled.current = throttle(navigate, THROTTLE_SPEED);
-
-    navigateDownThrottled.current = throttle(navigateDown, THROTTLE_SPEED);
-    navigateLeftThrottled.current = throttle(navigateLeft, THROTTLE_SPEED);
-    navigateRightThrottled.current = throttle(navigateRight, THROTTLE_SPEED);
   }, []);
 
   const checkInput = useCallback(() => {
@@ -306,13 +288,13 @@ const Navigator = () => {
     checkInput();
   }, [input, checkInput]);
 
-  useEffect(() => {
-    const interval = setInterval(checkInput, 100);
+  // useEffect(() => {
+  //   const interval = setInterval(checkInput, 100);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [checkInput]);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, [checkInput]);
 
   return <></>;
 };
