@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useFocusStore } from "../store/library";
 import { useFocusContext } from "../context/FocusContext";
 import { FocusId } from "../types";
@@ -65,7 +71,7 @@ function useFocusable<T extends HTMLElement>(
   };
 
   // Sync focus item with store
-  useEffect(() => {
+  useLayoutEffect(() => {
     // If we already added it, don't add again
     if (focusAdded.current) return;
 
@@ -94,6 +100,7 @@ function useFocusable<T extends HTMLElement>(
     focusItems,
     parentKey,
     focusable,
+    isParent,
   ]);
 
   // If we unmount, remove focus item from store
