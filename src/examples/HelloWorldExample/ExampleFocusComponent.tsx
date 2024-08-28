@@ -24,6 +24,7 @@ const ExampleFocusComponent = ({
       ref={ref}
       style={{
         backgroundColor: focused ? "blue" : "transparent",
+        marginBottom: "0.5em",
         ...style,
       }}
       onClick={() => console.log("button pressed!")}

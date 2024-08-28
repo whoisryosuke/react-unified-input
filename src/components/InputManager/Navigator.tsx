@@ -9,30 +9,50 @@ const THROTTLE_SPEED = 100; // in milliseconds
 
 type NavigationDirections = "up" | "down" | "left" | "right";
 
+function getFirstChildInParent(
+  focusId: string,
+  focusItems: [string, FocusItem][]
+) {
+  console.log("searching for parent key children", focusId, focusItems);
+  // Filter the focus items by children of this container
+  const firstChild = focusItems.find(([key, focusItem]) => {
+    return focusItem.parent == focusId && focusItem.focusable;
+  });
+
+  console.log("done searching...child results", firstChild);
+
+  // No children? Bail out.
+  if (!firstChild) return null;
+
+  // Return the child key
+  return firstChild[0];
+}
+
 const checkForCollisions = (
   focusChildren: [string, FocusItem][],
   direction: NavigationDirections,
   currentItem: FocusItem
 ) => {
-  // If we find a new focus item we store it here to compare against other options
-  let foundKey: FocusId | undefined;
-  let foundItem: FocusItem | undefined;
-  // Filter items based on the direction we're searching
-  // Then loop over each one and check which is actually closest
-  focusChildren
+  const sortedFocusCandidates = focusChildren
+    // We filter out the current parent because we'll always detect it from inside
+    .filter(([focusKey, _]) => {
+      return focusKey !== currentItem.parent;
+    })
+    // Filter items based on the direction we're searching
     .filter(([_, focusItem]) => {
       switch (direction) {
         case "up":
           return focusItem.position.y < currentItem.position.y;
         case "down":
-          return focusItem.position.y > currentItem.position.y;
+          return focusItem.position.y > currentItem.position.bottom;
         case "left":
           return focusItem.position.x < currentItem.position.x;
         case "right":
-          return focusItem.position.x > currentItem.position.x;
+          return focusItem.position.x > currentItem.position.right;
       }
     })
-    .forEach(([key, focusItem]) => {
+    // Then loop over each one and check which is actually closest
+    .map(([key, focusItem]) => {
       console.log(
         "found container child focus item",
         direction,
@@ -42,14 +62,10 @@ const checkForCollisions = (
       );
       // Check if it's the closest item
       // Change logic depending on the direction
-      let foundComparisonVertical;
-      let baseComparisonVertical;
-      let foundComparisonSide;
-      let baseComparisonSide;
+      let comparisonVertical = 0;
+      let comparisonSide = 0;
       switch (direction) {
         case "up": {
-          if (!foundItem) break;
-
           // This basically works with a "weight" system.
           // Inspired by Norigin's Spatial Navigation priority system.
           // We compare the "found" element to the current one
@@ -58,71 +74,41 @@ const checkForCollisions = (
           // But since certain directions care more about certain sides
           // we give more "weight"/priority to the matching side (vertical dir = vertical side)
           // This helps navigate more in the direction we want
-          foundComparisonVertical =
-            Math.abs(foundItem.position.y - currentItem.position.y) *
-            FOCUS_WEIGHT_LOW;
-          baseComparisonVertical =
+          comparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_LOW;
 
-          foundComparisonSide =
-            Math.abs(foundItem.position.x - currentItem.position.x) *
-            FOCUS_WEIGHT_HIGH;
-          baseComparisonSide =
+          comparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_HIGH;
           break;
         }
         case "down": {
-          if (!foundItem) break;
-
-          foundComparisonVertical =
-            Math.abs(foundItem.position.y - currentItem.position.y) *
-            FOCUS_WEIGHT_LOW;
-          baseComparisonVertical =
+          comparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_LOW;
 
-          foundComparisonSide =
-            Math.abs(foundItem.position.x - currentItem.position.x) *
-            FOCUS_WEIGHT_HIGH;
-          baseComparisonSide =
+          comparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_HIGH;
           break;
         }
         case "left": {
-          if (!foundItem) break;
-
-          foundComparisonVertical =
-            Math.abs(foundItem.position.y - currentItem.position.y) *
-            FOCUS_WEIGHT_HIGH;
-          baseComparisonVertical =
+          comparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_HIGH;
 
-          foundComparisonSide =
-            Math.abs(foundItem.position.x - currentItem.position.x) *
-            FOCUS_WEIGHT_LOW;
-          baseComparisonSide =
+          comparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_LOW;
           break;
         }
         case "right": {
-          if (!foundItem) break;
-
-          foundComparisonVertical =
-            Math.abs(foundItem.position.y - currentItem.position.y) *
-            FOCUS_WEIGHT_HIGH;
-          baseComparisonVertical =
+          comparisonVertical =
             Math.abs(focusItem.position.y - currentItem.position.y) *
             FOCUS_WEIGHT_HIGH;
 
-          foundComparisonSide =
-            Math.abs(foundItem.position.x - currentItem.position.x) *
-            FOCUS_WEIGHT_LOW;
-          baseComparisonSide =
+          comparisonSide =
             Math.abs(focusItem.position.x - currentItem.position.x) *
             FOCUS_WEIGHT_LOW;
           break;
@@ -132,32 +118,36 @@ const checkForCollisions = (
         }
       }
 
-      if (
-        foundComparisonVertical != undefined &&
-        foundComparisonSide != undefined &&
-        baseComparisonVertical != undefined &&
-        baseComparisonSide != undefined
-      ) {
-        const foundComparisonTotal =
-          foundComparisonVertical + foundComparisonSide;
-
-        const baseComparisonTotal = baseComparisonVertical + baseComparisonSide;
-
-        if (foundComparisonTotal > baseComparisonTotal) {
-          foundKey = key;
-          foundItem = focusItem;
-        }
-      }
-      console.log("done checking");
-      // No item to check against? This one wins then.
-      if (!foundItem) {
-        console.log("default item selected", key, focusItem);
-        foundKey = key;
-        foundItem = focusItem;
-      }
+      const baseComparisonTotal = comparisonVertical + comparisonSide;
+      return {
+        key,
+        item: focusItem,
+        score: baseComparisonTotal,
+      };
+    })
+    // Sort by the score we gave each item. The lowest wins.
+    .sort((a, b) => {
+      return a.score - b.score;
     });
+  console.log("done checking", sortedFocusCandidates);
 
-  return { foundKey, foundItem };
+  if (sortedFocusCandidates.length <= 0) {
+    return {
+      foundKey: null,
+      foundItem: currentItem,
+    };
+  }
+
+  console.log(
+    "New focus item!",
+    sortedFocusCandidates[0].key,
+    sortedFocusCandidates[0].item
+  );
+
+  return {
+    foundKey: sortedFocusCandidates[0].key,
+    foundItem: sortedFocusCandidates[0].item,
+  };
 };
 
 type NavFunc = (direction: NavigationDirections) => void;
@@ -165,9 +155,6 @@ type NavFunc = (direction: NavigationDirections) => void;
 const Navigator = () => {
   const { input } = useFocusStore();
   const navigateThrottled = useRef<NavFunc>();
-  const navigateDownThrottled = useRef();
-  const navigateLeftThrottled = useRef();
-  const navigateRightThrottled = useRef();
 
   const navigate = (direction: NavigationDirections) => {
     const { focusItems, focusedItem, setFocusedItem, setFocusPosition } =
@@ -192,6 +179,7 @@ const Navigator = () => {
         setFocusedItem(focusKey);
       }
     }
+    console.log("Checking parent's children for focus item...");
     // Filter the focus items by children of the parent
     const focusMap = Object.entries(focusItems);
     const focusChildren = focusMap.filter(([_, focusItem]) => {
@@ -215,17 +203,9 @@ const Navigator = () => {
     );
 
     // Did we find a nested parent? Focus the first item inside that.
-    if (foundItem && foundItem.isParent) {
-      console.log("Parent focused finding first child", foundItem, foundKey);
-      // Focus the first child of container
-      const focusChild = focusMap.find(
-        ([focusId, focusItem]) => focusItem.parent == foundKey
-      );
-      console.log("first child found", focusChild);
-      if (focusChild) {
-        const [firstChildKey, firstChild] = focusChild;
-        return setFocusedItem(firstChildKey);
-      }
+    if (foundKey && foundItem && foundItem.isParent) {
+      const firstChild = getFirstChildInParent(foundKey, focusMap);
+      if (firstChild !== null) return setFocusedItem(firstChild);
     }
 
     // Found something? Focus it!
@@ -248,13 +228,19 @@ const Navigator = () => {
       setFocusPosition(focusId, newPosition);
       focusItem.position = newPosition;
     });
-    const { foundKey: foundOutsideKey } = checkForCollisions(
-      outsideMap,
-      direction,
-      currentItem
-    );
+    const { foundKey: foundOutsideKey, foundItem: foundOutsideItem } =
+      checkForCollisions(outsideMap, direction, currentItem);
 
-    if (foundOutsideKey) {
+    if (foundOutsideKey != null) {
+      // Is it a parent? Let's get the first child first
+      if (foundOutsideItem.isParent) {
+        console.log("Checking parent for children...");
+        const firstChild = getFirstChildInParent(foundOutsideKey, focusMap);
+        console.log("child found maybe", firstChild);
+        if (firstChild !== null) return setFocusedItem(firstChild);
+        console.log("no child found - focusing parent");
+      }
+
       console.log("navigating to", foundKey);
       return setFocusedItem(foundOutsideKey);
     }

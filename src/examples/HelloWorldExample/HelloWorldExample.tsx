@@ -30,8 +30,10 @@ const HelloWorldExample = () => {
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+              padding: "1em",
+              margin: "1em",
             }}
+            debug
           >
             <ExampleFocusComponent initialFocus />
             <ExampleFocusComponent />
@@ -43,8 +45,10 @@ const HelloWorldExample = () => {
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+              padding: "1em",
+              margin: "1em",
             }}
+            debug
           >
             <ExampleFocusComponent />
             <ExampleFocusComponent />
@@ -58,8 +62,10 @@ const HelloWorldExample = () => {
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+              padding: "1em",
+              margin: "1em",
             }}
+            debug
           >
             <ExampleFocusComponent />
             <ExampleFocusComponent />
@@ -71,8 +77,10 @@ const HelloWorldExample = () => {
             style={{
               display: "flex",
               flexDirection: "row",
-              alignItems: "center",
+              padding: "1em",
+              margin: "1em",
             }}
+            debug
           >
             <ExampleFocusComponent />
             <ExampleFocusComponent />
@@ -89,8 +97,10 @@ const HelloWorldExample = () => {
               right: 16,
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
+              padding: "1em",
+              margin: "1em",
             }}
+            debug
           >
             <ExampleFocusComponent
               style={{
@@ -102,10 +112,11 @@ const HelloWorldExample = () => {
                 width: "100%",
 
                 marginTop: 16,
+                gap: "1em",
               }}
             >
-              <ExampleFocusComponent />
-              <ExampleFocusComponent />
+              <ExampleFocusComponent style={{ marginRight: "1em" }} />
+              <ExampleFocusComponent style={{ marginRight: "1em" }} />
               <ExampleFocusComponent />
             </FocusContainer>
           </FocusContainer>
