@@ -29,7 +29,7 @@ const ExampleFocusComponent = ({
       onClick={() => console.log("button pressed!")}
       {...props}
     >
-      Focusable Component
+      Focusable Component (<small>{focusId.split("-")[1]}</small>)
     </button>
   );
 };
