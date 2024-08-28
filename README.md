@@ -14,7 +14,7 @@ Open the app in your web browser, you should see the app.
 
 ## How to use
 
-1. Install the library `npm i react-unified-input`
+1. Install the library `npm i unified-input`
 2. Add the `<InputManager />` to your app to enable focus navigation.
 3. Create a focusable component by using the `useFocusable()` hook inside a React component and pass the ref the underlying DOM element (see [the ExampleFocusComponent](src\examples\HelloWorldExample\ExampleFocusComponent.tsx) for an example).
 4. Spin up your app and try navigating using the keyboards arrow keys.
