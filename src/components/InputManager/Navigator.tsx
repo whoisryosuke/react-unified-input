@@ -3,11 +3,22 @@ import { useFocusStore } from "../../store/library";
 import { throttle } from "lodash";
 import { FocusId, FocusItem } from "../../types";
 
-const FOCUS_WEIGHT_HIGH = 10;
+const FOCUS_WEIGHT_HIGH = 5;
 const FOCUS_WEIGHT_LOW = 1;
 const THROTTLE_SPEED = 100; // in milliseconds
 
 type NavigationDirections = "up" | "down" | "left" | "right";
+
+const updateFocusPosition =
+  (setFocusPosition) =>
+  ([focusId, focusItem]) => {
+    const focusRef = document.querySelector(`[focus-id="${focusId}"]`);
+    if (!focusRef) return;
+
+    const newPosition = focusRef.getBoundingClientRect();
+    setFocusPosition(focusId, newPosition);
+    focusItem.position = newPosition;
+  };
 
 function getFirstChildInParent(
   focusId: string,
@@ -151,19 +162,53 @@ const checkForCollisions = (
   };
 };
 
+const checkFocusItemsForCollisions = (
+  focusMap: [string, FocusItem][],
+  direction: NavigationDirections,
+  currentItem: FocusItem,
+  fullMap: [string, FocusItem][],
+  setFocusPosition,
+  setFocusedItem
+) => {
+  // Update positions of children
+  focusMap.forEach(updateFocusPosition(setFocusPosition));
+
+  const { foundKey, foundItem } = checkForCollisions(
+    focusMap,
+    direction,
+    currentItem
+  );
+
+  if (foundKey != null) {
+    // Is it a parent? Let's get the first child first
+    if (foundItem.isParent) {
+      console.log("Checking parent for children...");
+      const firstChild = getFirstChildInParent(foundKey, fullMap);
+      console.log("child found maybe", firstChild);
+      if (firstChild !== null) {
+        setFocusedItem(firstChild);
+        return firstChild;
+      }
+      console.log("no child found - focusing parent");
+    }
+    setFocusedItem(foundKey);
+    return foundKey;
+  }
+};
+
 type NavFunc = (direction: NavigationDirections) => void;
 
 const Navigator = () => {
   const { input } = useFocusStore();
   const navigateThrottled = useRef<NavFunc>();
 
-  const navigate = (direction: NavigationDirections) => {
+  const navigate = async (direction: NavigationDirections) => {
     const { focusItems, focusedItem, setFocusedItem, setFocusPosition } =
       useFocusStore.getState();
 
     if (typeof window == "undefined") return;
     console.log("navigating", direction);
-    // Logic
+
     // Get current focus item
     const currentItem = focusItems[focusedItem];
     if (!currentItem) {
@@ -180,71 +225,65 @@ const Navigator = () => {
         setFocusedItem(focusKey);
       }
     }
+
+    // Now we do 3 layers of checks (stopping early if we detect focus)
+    // 1️⃣ First we check inside the current focus container
     console.log("Checking parent's children for focus item...");
-    // Filter the focus items by children of the parent
     const focusMap = Object.entries(focusItems);
     const focusChildren = focusMap.filter(([_, focusItem]) => {
       return focusItem.parent === currentItem.parent;
     });
-    // Update positions of children
-    focusChildren.forEach(([focusId, focusItem]) => {
-      const focusRef = document.querySelector(`[focus-id="${focusId}"]`);
-      if (!focusRef) return;
 
-      const newPosition = focusRef.getBoundingClientRect();
-      setFocusPosition(focusId, newPosition);
-      focusItem.position = newPosition;
-    });
-
-    // Look for something below
-    const { foundKey, foundItem } = checkForCollisions(
+    // This method runs each layer.
+    // It refreshes focus positions, then checks for collisions, and sets focus if found
+    const focusChildrenResult = checkFocusItemsForCollisions(
       focusChildren,
       direction,
-      currentItem
+      currentItem,
+      focusMap,
+      setFocusPosition,
+      setFocusedItem
     );
+    // If we succeeded, we get a focus key back. If not, it returns `null` -- meaning keep going!
+    if (focusChildrenResult) return;
 
-    // Did we find a nested parent? Focus the first item inside that.
-    if (foundKey && foundItem && foundItem.isParent) {
-      const firstChild = getFirstChildInParent(foundKey, focusMap);
-      if (firstChild !== null) return setFocusedItem(firstChild);
-    }
-
-    // Found something? Focus it!
-    if (foundKey) {
-      console.log("navigating to test", foundKey, typeof foundKey);
-      return setFocusedItem(foundKey);
-    }
-
-    // Nothing? Search through remaining focus items? (helps enforce container-first logic)
+    // 2️⃣ Nothing? Search for focus items outside the current focus item's parent - container's first
     console.log("couldnt find a sibling - going outside");
-    const outsideMap = focusMap.filter(([_, focusItem]) => {
-      return focusItem.parent !== currentItem.parent && focusItem.focusable;
+    const outsideParentMap = focusMap.filter(([_, focusItem]) => {
+      return (
+        focusItem.parent !== currentItem.parent &&
+        focusItem.focusable &&
+        focusItem.isParent
+      );
     });
-    // Update positions of children
-    outsideMap.forEach(([focusId, focusItem]) => {
-      const focusRef = document.querySelector(`[focus-id="${focusId}"]`);
-      if (!focusRef) return;
+    const outsideParentResult = checkFocusItemsForCollisions(
+      outsideParentMap,
+      direction,
+      currentItem,
+      focusMap,
+      setFocusPosition,
+      setFocusedItem
+    );
+    if (outsideParentResult) return;
 
-      const newPosition = focusRef.getBoundingClientRect();
-      setFocusPosition(focusId, newPosition);
-      focusItem.position = newPosition;
+    // 3️⃣ Nothing? Search through the last of the focus items (non-containers)
+    console.log("couldnt find a sibling - going outside");
+    const outsideChildMap = focusMap.filter(([_, focusItem]) => {
+      return (
+        focusItem.parent !== currentItem.parent &&
+        focusItem.focusable &&
+        !focusItem.isParent
+      );
     });
-    const { foundKey: foundOutsideKey, foundItem: foundOutsideItem } =
-      checkForCollisions(outsideMap, direction, currentItem);
-
-    if (foundOutsideKey != null) {
-      // Is it a parent? Let's get the first child first
-      if (foundOutsideItem.isParent) {
-        console.log("Checking parent for children...");
-        const firstChild = getFirstChildInParent(foundOutsideKey, focusMap);
-        console.log("child found maybe", firstChild);
-        if (firstChild !== null) return setFocusedItem(firstChild);
-        console.log("no child found - focusing parent");
-      }
-
-      console.log("navigating to", foundKey);
-      return setFocusedItem(foundOutsideKey);
-    }
+    const outsideChildResult = checkFocusItemsForCollisions(
+      outsideChildMap,
+      direction,
+      currentItem,
+      focusMap,
+      setFocusPosition,
+      setFocusedItem
+    );
+    if (outsideChildResult) return;
   };
 
   useEffect(() => {
