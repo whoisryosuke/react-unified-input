@@ -75,7 +75,7 @@ const checkForCollisions = (
           // we give more "weight"/priority to the matching side (vertical dir = vertical side)
           // This helps navigate more in the direction we want
           comparisonVertical =
-            Math.abs(focusItem.position.y - currentItem.position.y) *
+            Math.abs(focusItem.position.y - currentItem.position.bottom) *
             FOCUS_WEIGHT_LOW;
 
           comparisonSide =
@@ -85,7 +85,7 @@ const checkForCollisions = (
         }
         case "down": {
           comparisonVertical =
-            Math.abs(focusItem.position.y - currentItem.position.y) *
+            Math.abs(focusItem.position.bottom - currentItem.position.y) *
             FOCUS_WEIGHT_LOW;
 
           comparisonSide =
@@ -99,7 +99,7 @@ const checkForCollisions = (
             FOCUS_WEIGHT_HIGH;
 
           comparisonSide =
-            Math.abs(focusItem.position.x - currentItem.position.x) *
+            Math.abs(focusItem.position.x - currentItem.position.right) *
             FOCUS_WEIGHT_LOW;
           break;
         }
@@ -109,7 +109,7 @@ const checkForCollisions = (
             FOCUS_WEIGHT_HIGH;
 
           comparisonSide =
-            Math.abs(focusItem.position.x - currentItem.position.x) *
+            Math.abs(focusItem.position.right - currentItem.position.x) *
             FOCUS_WEIGHT_LOW;
           break;
         }
@@ -119,6 +119,7 @@ const checkForCollisions = (
       }
 
       const baseComparisonTotal = comparisonVertical + comparisonSide;
+      console.log("score", key, baseComparisonTotal);
       return {
         key,
         item: focusItem,
