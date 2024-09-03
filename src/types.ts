@@ -11,3 +11,10 @@ export type FocusItem = {
   isParent: boolean;
   rememberFocus: boolean;
 };
+
+export type FocusItems = Record<FocusId, FocusItem>;
+// These are focus items that we use `Object.entries()`
+export type FocusItemMapItem = [FocusId, FocusItem];
+export type FocusItemMap = FocusItemMapItem[];
+
+export type LastFocusedItems = Record<FocusId, FocusId>;

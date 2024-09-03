@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { FocusId, FocusItem } from "../types";
+import { FocusId, FocusItem, FocusItems, LastFocusedItems } from "../types";
 import {
   UserInputMap,
   UserInputKeys,
@@ -20,6 +20,11 @@ const DEFAULT_FOCUS_CONFIG: FocusConfig = {
   removeFocusOnHover: false,
 };
 
+export type SetFocusPositionCallback = (
+  focusId: FocusId,
+  position: FocusItem["position"]
+) => void;
+
 interface LibraryState {
   // Config
   focusConfig: FocusConfig;
@@ -27,14 +32,14 @@ interface LibraryState {
 
   // Focus
   focusedItem: FocusId;
-  focusItems: Record<FocusId, FocusItem>;
+  focusItems: FocusItems;
   addFocusItem: (focusId: FocusId, focusItem: FocusItem) => void;
   setFocusedItem: (focusId: FocusId) => void;
   removeFocusItem: (focusId: FocusId) => void;
-  setFocusPosition: (focusId: FocusId, position: FocusItem["position"]) => void;
+  setFocusPosition: SetFocusPositionCallback;
 
   // Focus Containers
-  lastFocusedItems: Record<FocusId, FocusId>;
+  lastFocusedItems: LastFocusedItems;
   updateLastFocusItem: (parentId: FocusId, focusId: FocusId) => void;
 
   // Input
