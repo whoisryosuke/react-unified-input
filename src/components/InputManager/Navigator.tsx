@@ -162,11 +162,26 @@ const checkForCollisions = (
   };
 };
 
+const rememberFocusSync = (
+  focusItems: Record<FocusId, FocusItem>,
+  rememberFocusFlag: boolean,
+  lastFocusedItemKey: FocusId,
+  updateLastFocusItem: (parentId: FocusId, focusId: FocusId) => void
+) => {
+  if (rememberFocusFlag) {
+    // We need the parent ID, so we grab the focus item for it
+    const lastFocusedItem = focusItems[lastFocusedItemKey];
+    if (lastFocusedItem)
+      updateLastFocusItem(lastFocusedItem.parent, lastFocusedItemKey);
+  }
+};
+
 const checkFocusItemsForCollisions = (
   focusMap: [string, FocusItem][],
   direction: NavigationDirections,
   currentItem: FocusItem,
   fullMap: [string, FocusItem][],
+  lastFocusedItems: Record<FocusId, FocusId>,
   setFocusPosition,
   setFocusedItem
 ) => {
@@ -180,8 +195,22 @@ const checkFocusItemsForCollisions = (
   );
 
   if (foundKey != null) {
-    // Is it a parent? Let's get the first child first
+    // Is it a parent? Focus elements inside (either first one or last saved)
     if (foundItem.isParent) {
+      // Do we use the last saved item?
+      if (foundItem.rememberFocus) {
+        const lastFocusedItemKey = lastFocusedItems[foundKey];
+        console.log(
+          "REMEMBER FOCUS! checking for last item",
+          lastFocusedItemKey
+        );
+        if (lastFocusedItemKey) {
+          setFocusedItem(lastFocusedItemKey);
+          return lastFocusedItemKey;
+        }
+      }
+
+      // Otherwise grab first child we detect
       console.log("Checking parent for children...");
       const firstChild = getFirstChildInParent(foundKey, fullMap);
       console.log("child found maybe", firstChild);
@@ -191,6 +220,8 @@ const checkFocusItemsForCollisions = (
       }
       console.log("no child found - focusing parent");
     }
+
+    // If all else fails just focus the parent - let the user handle the focus
     setFocusedItem(foundKey);
     return foundKey;
   }
@@ -203,8 +234,14 @@ const Navigator = () => {
   const navigateThrottled = useRef<NavFunc>();
 
   const navigate = async (direction: NavigationDirections) => {
-    const { focusItems, focusedItem, setFocusedItem, setFocusPosition } =
-      useFocusStore.getState();
+    const {
+      focusItems,
+      focusedItem,
+      setFocusedItem,
+      setFocusPosition,
+      lastFocusedItems,
+      updateLastFocusItem,
+    } = useFocusStore.getState();
 
     if (typeof window == "undefined") return;
     console.log("navigating", direction);
@@ -226,6 +263,12 @@ const Navigator = () => {
       }
     }
 
+    // Does parent container need to remember focus?
+    let rememberFocusFlag = false;
+    const parentContainer = focusItems[currentItem.parent];
+    if (parentContainer && parentContainer.rememberFocus)
+      rememberFocusFlag = true;
+
     // Now we do 3 layers of checks (stopping early if we detect focus)
     // 1️⃣ First we check inside the current focus container
     console.log("Checking parent's children for focus item...");
@@ -234,18 +277,29 @@ const Navigator = () => {
       return focusItem.parent === currentItem.parent;
     });
 
+    let newFocusKey;
     // This method runs each layer.
     // It refreshes focus positions, then checks for collisions, and sets focus if found
-    const focusChildrenResult = checkFocusItemsForCollisions(
+    newFocusKey = checkFocusItemsForCollisions(
       focusChildren,
       direction,
       currentItem,
       focusMap,
+      lastFocusedItems,
       setFocusPosition,
       setFocusedItem
     );
     // If we succeeded, we get a focus key back. If not, it returns `null` -- meaning keep going!
-    if (focusChildrenResult) return;
+    if (newFocusKey) {
+      rememberFocusSync(
+        focusItems,
+        rememberFocusFlag,
+        newFocusKey,
+        updateLastFocusItem
+      );
+
+      return;
+    }
 
     // 2️⃣ Nothing? Search for focus items outside the current focus item's parent - container's first
     console.log("couldnt find a sibling - going outside");
@@ -256,15 +310,25 @@ const Navigator = () => {
         focusItem.isParent
       );
     });
-    const outsideParentResult = checkFocusItemsForCollisions(
+    newFocusKey = checkFocusItemsForCollisions(
       outsideParentMap,
       direction,
       currentItem,
       focusMap,
+      lastFocusedItems,
       setFocusPosition,
       setFocusedItem
     );
-    if (outsideParentResult) return;
+    if (newFocusKey) {
+      rememberFocusSync(
+        focusItems,
+        rememberFocusFlag,
+        newFocusKey,
+        updateLastFocusItem
+      );
+
+      return;
+    }
 
     // 3️⃣ Nothing? Search through the last of the focus items (non-containers)
     console.log("couldnt find a sibling - going outside");
@@ -275,15 +339,25 @@ const Navigator = () => {
         !focusItem.isParent
       );
     });
-    const outsideChildResult = checkFocusItemsForCollisions(
+    newFocusKey = checkFocusItemsForCollisions(
       outsideChildMap,
       direction,
       currentItem,
       focusMap,
+      lastFocusedItems,
       setFocusPosition,
       setFocusedItem
     );
-    if (outsideChildResult) return;
+    if (newFocusKey) {
+      rememberFocusSync(
+        focusItems,
+        rememberFocusFlag,
+        newFocusKey,
+        updateLastFocusItem
+      );
+
+      return;
+    }
   };
 
   useEffect(() => {

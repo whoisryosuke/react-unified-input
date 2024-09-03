@@ -10,15 +10,20 @@ const BASE_STYLES: React.CSSProperties = {
 type Props = {
   style: React.CSSProperties;
   debug?: boolean;
+  rememberFocus?: boolean;
 };
 
 const FocusContainer = ({
   children,
   debug = false,
+  rememberFocus = false,
   style,
   ...props
 }: PropsWithChildren<Props>) => {
-  const { ref, focusId } = useFocusable<HTMLDivElement>({ isParent: true });
+  const { ref, focusId } = useFocusable<HTMLDivElement>({
+    isParent: true,
+    rememberFocus,
+  });
   const styles = {
     ...BASE_STYLES,
     ...style,

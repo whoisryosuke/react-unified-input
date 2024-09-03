@@ -33,6 +33,10 @@ interface LibraryState {
   removeFocusItem: (focusId: FocusId) => void;
   setFocusPosition: (focusId: FocusId, position: FocusItem["position"]) => void;
 
+  // Focus Containers
+  lastFocusedItems: Record<FocusId, FocusId>;
+  updateLastFocusItem: (parentId: FocusId, focusId: FocusId) => void;
+
   // Input
   input: UserInputMap;
   setInput: (key: UserInputKeys, input: boolean) => void;
@@ -82,6 +86,15 @@ export const useFocusStore = create<LibraryState>()(
             ...state.focusItems[focusId],
             position,
           },
+        },
+      })),
+
+    lastFocusedItems: {},
+    updateLastFocusItem: (parentId, focusId) =>
+      set((state) => ({
+        lastFocusedItems: {
+          ...state.lastFocusedItems,
+          [parentId]: focusId,
         },
       })),
 

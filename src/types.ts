@@ -9,4 +9,5 @@ export type FocusItem = {
   position: DOMRect;
   focusable: boolean;
   isParent: boolean;
+  rememberFocus: boolean;
 };

@@ -49,6 +49,7 @@ const HelloWorldExample = () => {
               margin: "1em",
             }}
             debug
+            rememberFocus
           >
             <ExampleFocusComponent />
             <ExampleFocusComponent />

@@ -16,12 +16,14 @@ type UseFocusableProps = {
   focusName: FocusId;
   focusable: boolean;
   isParent: boolean;
+  rememberFocus: boolean;
 };
 
 const DEFAULT_USE_FOCUSABLE_PROPS: UseFocusableProps = {
   focusName: "",
   focusable: true,
   isParent: false,
+  rememberFocus: false,
 };
 
 function useFocusable<T extends HTMLElement>(
@@ -32,7 +34,7 @@ function useFocusable<T extends HTMLElement>(
     ...DEFAULT_USE_FOCUSABLE_PROPS,
     ...userConfig,
   };
-  const { focusName, focusable, isParent } = config;
+  const { focusName, focusable, isParent, rememberFocus } = config;
 
   // The focus element ref
   const ref = useRef<T>(null);
@@ -90,7 +92,13 @@ function useFocusable<T extends HTMLElement>(
       return;
     }
     console.log("adding to focus store", focusId);
-    addFocusItem(focusId, { parent: parentKey, position, focusable, isParent });
+    addFocusItem(focusId, {
+      parent: parentKey,
+      position,
+      focusable,
+      isParent,
+      rememberFocus,
+    });
     ref.current?.setAttribute("focus-id", focusId);
     focusAdded.current = true;
   }, [
@@ -101,6 +109,7 @@ function useFocusable<T extends HTMLElement>(
     parentKey,
     focusable,
     isParent,
+    rememberFocus,
   ]);
 
   // If we unmount, remove focus item from store
