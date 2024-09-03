@@ -15,6 +15,12 @@ const THROTTLE_SPEED = 100; // in milliseconds
 
 type NavigationDirections = "up" | "down" | "left" | "right";
 
+/**
+ * Dependency injection for a hook method that we need inside a callback method
+ * This basically creates a callback function and lets us use `setFocusPosition` inside
+ * @param setFocusPosition
+ * @returns
+ */
 const updateFocusPosition =
   (setFocusPosition: SetFocusPositionCallback) =>
   ([focusId, focusItem]: [FocusId, FocusItem]) => {
