@@ -8,6 +8,7 @@ import {
 import { useFocusStore } from "../store/library";
 import { useFocusContext } from "../context/FocusContext";
 import { FocusId } from "../types";
+import { createLogger } from "../utils/log";
 
 const generateId = () =>
   `${Number(new Date()).toString()}-${Math.round(Math.random() * 100000)}`;
@@ -55,6 +56,9 @@ function useFocusable<T extends HTMLElement>(
   const parentKey = useFocusContext();
   const focused = focusedItem === focusId;
 
+  // Create a wrapper for console.log (based on user config)
+  const log = createLogger(focusConfig.debugLog);
+
   const getPosition = () => {
     if (ref.current && window) {
       const position = ref.current.getBoundingClientRect();
@@ -80,10 +84,10 @@ function useFocusable<T extends HTMLElement>(
     // Check if focus name exists, if so, make a new one
     // Ideally this will run again
     if (focusId in focusItems) {
-      console.log("duplicate ID found, generating new one");
+      log("duplicate ID found, generating new one");
       return setFocusId(generateId());
     }
-    console.log("focus not found, syncing");
+    log("focus not found, syncing");
     // Get position
     const position = getPosition();
     if (!position) {
@@ -91,7 +95,7 @@ function useFocusable<T extends HTMLElement>(
       // throw new Error(`Couldn't find element position for focus ${focusId}`);
       return;
     }
-    console.log("adding to focus store", focusId);
+    log("adding to focus store", focusId);
     addFocusItem(focusId, {
       parent: parentKey,
       position,
@@ -115,7 +119,7 @@ function useFocusable<T extends HTMLElement>(
   // If we unmount, remove focus item from store
   useEffect(() => {
     return () => {
-      console.log("unmounting focus", focusId);
+      log("unmounting focus", focusId);
       removeFocusItem(focusId);
       ref.current?.removeAttribute("focus-id");
       focusAdded.current = false;
@@ -165,17 +169,17 @@ function useFocusable<T extends HTMLElement>(
       const focusElement = ref.current;
       if (!focusElement) return;
       focusElement.focus();
-      console.log("element focused", focusElement);
+      log("element focused", focusElement);
     }
   }, [focused]);
 
   // a11y: Check if focus with DOM is out of sync (like tab navigation)
   const handleFocus = useCallback(() => {
-    console.log("checking DOM focus");
+    log("checking DOM focus");
     const focusElement = ref.current;
     if (!focusElement) return;
     if (document.activeElement == focusElement && !focused) {
-      console.log("element is focused in DOM - but not in system");
+      log("element is focused in DOM - but not in system");
       setFocusedItem(focusId);
     }
   }, [focusId, setFocusedItem, focused]);

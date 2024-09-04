@@ -8,6 +8,7 @@ import {
   FocusItems,
   LastFocusedItems,
 } from "../../types";
+import { createLogger } from "../../utils/log";
 
 const FOCUS_WEIGHT_HIGH = 5;
 const FOCUS_WEIGHT_LOW = 1;
@@ -33,16 +34,38 @@ const updateFocusPosition =
   };
 
 /**
+ * Checks if we the parent container needs to remember the focus item
+ * and saves if necessary.
+ * @param focusItems
+ * @param rememberFocusFlag
+ * @param lastFocusedItemKey
+ * @param updateLastFocusItem
+ */
+const rememberFocusSync = (
+  focusItems: FocusItems,
+  rememberFocusFlag: boolean,
+  lastFocusedItemKey: FocusId,
+  updateLastFocusItem: (parentId: FocusId, focusId: FocusId) => void
+) => {
+  if (rememberFocusFlag) {
+    // We need the parent ID, so we grab the focus item for it
+    const lastFocusedItem = focusItems[lastFocusedItemKey];
+    if (lastFocusedItem)
+      updateLastFocusItem(lastFocusedItem.parent, lastFocusedItemKey);
+  }
+};
+
+/**
  * Searches the provided focus items for the first child of provided parent ID
  */
 function getFirstChildInParent(parentId: string, focusItems: FocusItemMap) {
-  console.log("searching for parent key children", parentId, focusItems);
+  // console.log("searching for parent key children", parentId, focusItems);
   // Filter the focus items by children of this container
   const firstChild = focusItems.find(([_, focusItem]) => {
     return focusItem.parent == parentId && focusItem.focusable;
   });
 
-  console.log("done searching...child results", firstChild);
+  // console.log("done searching...child results", firstChild);
 
   // No children? Bail out.
   if (!firstChild) return null;
@@ -89,13 +112,13 @@ const checkForCollisions = (
     })
     // Then loop over each one and check which is actually closest
     .map(([key, focusItem]) => {
-      console.log(
-        "found container child focus item",
-        direction,
-        key,
-        currentItem.position,
-        focusItem.position
-      );
+      // console.log(
+      //   "found container child focus item",
+      //   direction,
+      //   key,
+      //   currentItem.position,
+      //   focusItem.position
+      // );
       // Check if it's the closest item
       // Change logic depending on the direction
       let comparisonVertical = 0;
@@ -155,7 +178,7 @@ const checkForCollisions = (
       }
 
       const baseComparisonTotal = comparisonVertical + comparisonSide;
-      console.log("score", key, baseComparisonTotal);
+      // console.log("score", key, baseComparisonTotal);
       return {
         key,
         item: focusItem,
@@ -166,7 +189,7 @@ const checkForCollisions = (
     .sort((a, b) => {
       return a.score - b.score;
     });
-  console.log("done checking", sortedFocusCandidates);
+  // console.log("done checking", sortedFocusCandidates);
 
   if (sortedFocusCandidates.length <= 0) {
     return {
@@ -175,38 +198,16 @@ const checkForCollisions = (
     };
   }
 
-  console.log(
-    "New focus item!",
-    sortedFocusCandidates[0].key,
-    sortedFocusCandidates[0].item
-  );
+  // console.log(
+  //   "New focus item!",
+  //   sortedFocusCandidates[0].key,
+  //   sortedFocusCandidates[0].item
+  // );
 
   return {
     foundKey: sortedFocusCandidates[0].key,
     foundItem: sortedFocusCandidates[0].item,
   };
-};
-
-/**
- * Checks if we the parent container needs to remember the focus item
- * and saves if necessary.
- * @param focusItems
- * @param rememberFocusFlag
- * @param lastFocusedItemKey
- * @param updateLastFocusItem
- */
-const rememberFocusSync = (
-  focusItems: FocusItems,
-  rememberFocusFlag: boolean,
-  lastFocusedItemKey: FocusId,
-  updateLastFocusItem: (parentId: FocusId, focusId: FocusId) => void
-) => {
-  if (rememberFocusFlag) {
-    // We need the parent ID, so we grab the focus item for it
-    const lastFocusedItem = focusItems[lastFocusedItemKey];
-    if (lastFocusedItem)
-      updateLastFocusItem(lastFocusedItem.parent, lastFocusedItemKey);
-  }
 };
 
 /**
@@ -244,23 +245,20 @@ const checkFocusItemsForCollisions = (
       // Do we use the last saved item?
       if (foundItem.rememberFocus) {
         const lastFocusedItemKey = lastFocusedItems[foundKey];
-        console.log(
-          "REMEMBER FOCUS! checking for last item",
-          lastFocusedItemKey
-        );
+        // console.log("REMEMBER FOCUS! checking for last item", lastFocusedItemKey);
         if (lastFocusedItemKey) {
           return lastFocusedItemKey;
         }
       }
 
       // Otherwise grab first child we detect
-      console.log("Checking parent for children...");
+      // console.log("Checking parent for children...");
       const firstChild = getFirstChildInParent(foundKey, fullMap);
-      console.log("child found maybe", firstChild);
+      // console.log("child found maybe", firstChild);
       if (firstChild !== null) {
         return firstChild;
       }
-      console.log("no child found - focusing parent");
+      // console.log("no child found - focusing parent");
     }
 
     // If all else fails just focus the parent - let the user handle the focus
@@ -302,7 +300,7 @@ const findNextFocus = (
 
   // Now we do 3 layers of checks (stopping early if we detect focus)
   // 1️⃣ First we check inside the current focus container
-  console.log("Checking parent's children for focus item...");
+  // console.log("Checking parent's children for focus item...");
   const focusMap = Object.entries(focusItems);
   const focusChildren = focusMap.filter(([_, focusItem]) => {
     return focusItem.parent === currentItem.parent;
@@ -323,7 +321,7 @@ const findNextFocus = (
   if (newFocusKey) return newFocusKey;
 
   // 2️⃣ Nothing? Search for focus items outside the current focus item's parent - container's first
-  console.log("couldnt find a sibling - going outside");
+  // console.log("couldnt find a sibling - going outside");
   const outsideParentMap = focusMap.filter(([_, focusItem]) => {
     return (
       focusItem.parent !== currentItem.parent &&
@@ -342,7 +340,7 @@ const findNextFocus = (
   if (newFocusKey) return newFocusKey;
 
   // 3️⃣ Nothing? Search through the last of the focus items (non-containers)
-  console.log("couldnt find a sibling - going outside");
+  // console.log("couldnt find a sibling - going outside");
   const outsideChildMap = focusMap.filter(([_, focusItem]) => {
     return (
       focusItem.parent !== currentItem.parent &&
@@ -364,12 +362,15 @@ const findNextFocus = (
 type NavFunc = (direction: NavigationDirections) => void;
 
 const Navigator = () => {
-  const { input } = useFocusStore();
+  const { input, focusConfig } = useFocusStore();
   const navigateThrottled = useRef<NavFunc>();
+
+  // Create a wrapper for console.log (based on user config)
+  const log = createLogger(focusConfig.debugLog);
 
   const navigate = async (direction: NavigationDirections) => {
     if (typeof window == "undefined") return;
-    console.log("navigating", direction);
+    log("[NAVIGATOR] Navigating...", direction);
 
     const {
       focusItems,
@@ -392,6 +393,11 @@ const Navigator = () => {
     );
     if (!newFocusKey) return;
 
+    log(
+      "[NAVIGATOR] Found a new focus item",
+      newFocusKey,
+      focusItems[newFocusKey]
+    );
     setFocusedItem(newFocusKey);
 
     // Does parent container need to remember focus?
@@ -414,22 +420,22 @@ const Navigator = () => {
 
   const checkInput = useCallback(() => {
     if (input.up && navigateThrottled.current) {
-      console.log("[NAVIGATOR] navigated up");
+      log("[NAVIGATOR] navigated up");
       navigateThrottled.current("up");
     }
     if (input.down && navigateThrottled.current) {
-      console.log("[NAVIGATOR] navigated down");
+      log("[NAVIGATOR] navigated down");
       navigateThrottled.current("down");
     }
     if (input.left && navigateThrottled.current) {
-      console.log("[NAVIGATOR] navigated left");
+      log("[NAVIGATOR] navigated left");
       navigateThrottled.current("left");
     }
     if (input.right && navigateThrottled.current) {
-      console.log("[NAVIGATOR] navigated right");
+      log("[NAVIGATOR] navigated right");
       navigateThrottled.current("right");
     }
-  }, [input, navigateThrottled]);
+  }, [input, navigateThrottled, log]);
 
   // Check for input and navigate
   useEffect(() => {

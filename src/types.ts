@@ -18,3 +18,8 @@ export type FocusItemMapItem = [FocusId, FocusItem];
 export type FocusItemMap = FocusItemMapItem[];
 
 export type LastFocusedItems = Record<FocusId, FocusId>;
+
+export interface FocusConfig {
+  removeFocusOnHover: boolean;
+  debugLog: boolean;
+}

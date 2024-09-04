@@ -6,13 +6,18 @@ import { useFocusStore } from "../../store/library";
 import DebugView from "../../components/DebugView/DebugView";
 import ExampleAnimatedComponent from "./ExampleAnimatedComponent";
 import KeyGuide from "../KeyGuide/KeyGuide";
+import { FocusConfig } from "../../types";
+
+const customConfig: Partial<FocusConfig> = {
+  debugLog: true,
+};
 
 const HelloWorldExample = () => {
   const { focusItems, currentDevice, deviceName } = useFocusStore();
   // console.log("focusItems", focusItems);
   return (
     <div>
-      <InputManager />
+      <InputManager config={customConfig} />
       <div>
         <h2>Current Device: {currentDevice}</h2>
         <h3>Device Name: {deviceName}</h3>

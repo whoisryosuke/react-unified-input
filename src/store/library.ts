@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { FocusId, FocusItem, FocusItems, LastFocusedItems } from "../types";
+import {
+  FocusConfig,
+  FocusId,
+  FocusItem,
+  FocusItems,
+  LastFocusedItems,
+} from "../types";
 import {
   UserInputMap,
   UserInputKeys,
@@ -12,12 +18,9 @@ import {
 } from "../constants/input";
 // import type {} from "@redux-devtools/extension"; // required for devtools typing
 
-interface FocusConfig {
-  removeFocusOnHover: boolean;
-}
-
 const DEFAULT_FOCUS_CONFIG: FocusConfig = {
   removeFocusOnHover: false,
+  debugLog: false,
 };
 
 export type SetFocusPositionCallback = (
